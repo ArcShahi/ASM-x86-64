@@ -1,0 +1,63 @@
+; Implementation of Vieta's formuls for finding coefficients of quadratic given 2 roots 
+
+default rel
+
+extern _CRT_INIT,printf,scanf 
+global main
+
+segment .data
+  msg db "Gimme roots (r1,r2): ",0
+  fmt db "%lf %lf",0 
+  ans db "Coefficients : a = 1 , b = %g , c = %g",0xA,0xA,0 
+
+  negA  dq -1.00
+
+segment .bss
+  b resq 1
+  c resq 1 
+
+segment .text 
+
+; xmm0=r1 , xmm1=r2 
+coefficients:
+  
+  ; Assuming a=1 , for simplicity 
+  ; Sum of roots : r1 + r2  = -b / a 
+  ; b = -a(r1+r2)
+  movapd xmm2 ,xmm0 
+  addsd xmm2,xmm1 
+  mulsd xmm2,[negA]
+  movsd qword[b],xmm2 
+
+  ;Product of roots : r1r2 = c / a 
+  ;c = a(r1r2)
+  mulsd xmm0,xmm1 
+  movsd qword[c],xmm0  
+  ret 
+
+main:
+  sub rsp,0x38 ; 56B : 32B Shadow + 16B Local + 8B Padding; + 8B retaddr = 64B 
+  call _CRT_INIT
+
+  lea rcx,[msg]
+  call printf
+
+  lea rcx,[fmt]
+  lea rdx,[rsp+0x30]
+  lea r8,[rsp+0x28]
+  call scanf
+
+  movsd xmm0,qword[rsp+0x30]
+  movsd xmm1, qword[rsp+0x28]
+  call coefficients 
+
+  lea rcx,[ans]
+  movsd xmm1,[b]
+  movsd xmm2,[c]
+  mov rdx,[b]
+  mov r8, [c]
+  call printf 
+
+  xor eax,eax 
+  add rsp,0x38
+  ret 
