@@ -6,25 +6,26 @@ segment .text
 
 ; lcm(a,b)=|ab|/gcd(a,b)
 lcm :
-  sub rsp,0x28
+  ; Save paramters in shadow space
+  mov [rsp+0x08], rcx ; save a 
+  mov [rsp+0x0f], rdx ; save b 
 
-  mov [rsp],rcx
-  mov [rsp+0x08],rdx
+  sub rsp,0x20 ; Shadow space : 32B ; Stack is unaligned by 8B 
 
   imul rcx,rdx
-  mov [rsp+0x20] ,rcx; 
+  push rcx    ; ab on stack(cuz we're gonna call gcd and it may fuck the rcx ) , stack aligned now
 
-  mov rcx,[rsp]
-  mov rdx,[rsp+0x08]
+  ; Fetch a,b original value 
+  mov rcx,[rsp+0x08]
+  mov rdx,[rsp+0x0f]
   call gcd
 
-  mov r8,rax         ; rax=gcd 
-  mov rax,[rsp+0x20] ; |ab| fetch it back
-  cqo 
-  idiv r8            ; |ab|/gcd(a,b)
+  mov rcx,rax         ; rcx=gcd 
+  pop rax             ; rax= |ab| 
+  cqo                 ; Sign extend RCX->RDX 
+  idiv r8             ; |ab|/gcd(a,b)
 
-
-  add rsp,0x28       
+  add rsp,0x20       
   ret
 
   
