@@ -15,6 +15,8 @@ See help on how to use it , it's simple.
 ```powershell
 # You'll see complete help description ( Use PowerShell )
 help neko
+# See example usage
+help neko -Examples
 ```
 
 
