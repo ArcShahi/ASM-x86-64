@@ -1,10 +1,9 @@
 ; Create .obj file with it and pass it to linker  or create a dll and link.
 
 default rel
-
 segment .text
   
-  global gcd 
+global gcd 
 ; Eucledain GCD Implementation
 gcd:
     ; ecx = X, edx = Y
