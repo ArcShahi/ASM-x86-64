@@ -5,28 +5,30 @@ segment .text
   
 global gcd 
 ; Eucledain GCD Implementation
+; gcd(a=rcx, b=rdx)
 gcd:
-    ; ecx = X, edx = Y
-    test ecx, ecx
-    jz .end
-    test edx, edx
-    jz .end
-    mov r8d, edx        ; save Y in r8d
+  
+  ; Jump early if any paramter is 0 
+  xor eax,eax 
+  test rcx,rcx
+  je .end
+  test rdx,rdx
+  je .end 
+  
+  mov rax,rcx  ; rax=a 
+.loop:
+    mov r8,rdx 
+    cqo         ; Sign extend RAX->RDX ( so we can divide fucking huge numbers)
+    idiv r8     ; RAX = RDX:RAX / R8  , RDX = RDX:RAX % R8 
+    mov rax,r8  ; a,b are swapped 
+    test rdx,rdx 
+    jne .loop   ; continue till b!=0 
 
-.while:
-    xor edx, edx        ; clear edx for idiv
-    mov eax, ecx        ; eax = X
-    cqo
-    idiv r8d            ; eax = X / Y, edx = X % Y
-
-    mov ecx, r8d        ; X = Y
-    mov r8d, edx        ; Y = remainder
-
-    test r8d, r8d       ; if remainder != 0, continue
-    jnz .while
-
-    ; rem == 0, GCD is in ecx
-    mov eax, ecx
+;  rax = rax < 0  ? abs(rax) : rax 
+   test rax, rax 
+   jns .end
+   neg rax     ; rax = 0 - rax 
+  
 .end:
     ret
 
