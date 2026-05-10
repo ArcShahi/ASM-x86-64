@@ -9,8 +9,8 @@ segment .data
   msg1 db "Gimme Circle(a,b,r):",0xA,0
   fmt db "%f%f",0
   fmt1 db "%f%f%f",0
-  ans0 db "Point NOT in circle",0xA,0 
-  ans1 db "Point is/on circle",0xA,0 
+  ans0 db "Point NOT inside  or on circle",0xA,0 
+  ans1 db "Point's inside or on circle",0xA,0 
 
 
 segment .text 
@@ -61,8 +61,9 @@ main:
   call in_circle
 
   lea rcx,[ans1]
-  test al,al ; if zero then not in/on cirlce
-  cmovz rcx,[ans0]
+  lea rdx,[ans0]
+  test al,al    ; if zero then not in/on cirlce
+  cmovz rcx,rdx ; Load correct msg when in circle 
   call printf 
 
   xor eax,eax 
