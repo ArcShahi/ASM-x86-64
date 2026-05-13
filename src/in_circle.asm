@@ -20,44 +20,43 @@ segment .text
 in_circle:
     xor eax, eax
 
-    subss xmm0, xmm2        
-    mulss xmm0, xmm0        ; (x-a)^2
-    subss xmm1, xmm3        
-    mulss xmm1, xmm1        ; (y-b)^2
-    addss xmm0, xmm1        ; lhs 
-    mulss xmm4, xmm4        ; r^2
-    ucomiss xmm0, xmm4      ; lhs <= r^2 ?
-    setbe al
-
+    vsubss xmm0,xmm0, xmm2        
+    vmulss xmm0,xmm0, xmm0        ; (x-a)^2
+    vsubss xmm1,xmm1, xmm3        
+    vmulss xmm1,xmm1, xmm1        ; (y-b)^2
+    vaddss xmm0,xmm0, xmm1        ; lhs 
+    vmulss xmm4, xmm4,xmm4        ; r^2
+    vcomiss xmm0, xmm4            ; lhs <= r^2 ?
+    setbe al 
     ret
 
 main:
-  sub rsp,0x48; 72B : 40B Shadow + 20B Local + 12B Padding + 8B ret addr = 80B % 16==0 Aligned
+  sub rsp,0x38; 56B : (32B Shadow + 20B Local + 4B Padding) +  8B ret addr = 64 % 16==0 Aligned
   call _CRT_INIT 
 
   lea rcx,[msg]
   call printf 
 
   lea rcx,[fmt]
-  lea rdx,[rsp+0x44] ; x  
-  lea r8 ,[rsp+0x40] ; y 
+  lea rdx,[rsp+0x34] ; x  
+  lea r8 ,[rsp+0x30] ; y 
   call scanf 
 
   lea rcx,[msg1]
   call printf 
 
   lea rcx,[fmt1]
-  lea rdx,[rsp+0x3C] ; a 
-  lea r8 ,[rsp+0x38] ; b 
-  lea r9 ,[rsp+0x34] ; r 
+  lea rdx,[rsp+0x2C] ; a 
+  lea r8 ,[rsp+0x28] ; b 
+  lea r9 ,[rsp+0x24] ; r 
   call scanf 
 
   ; mov float value 
-  movss xmm4,dword[rsp+0x34] 
-  movss xmm0,dword[rsp+0x44]
-  movss xmm1,dword[rsp+0x40]
-  movss xmm2,dword[rsp+0x38]
-  movss xmm3,dword[rsp+0x34]
+  vmovss xmm0,dword[rsp+0x34] 
+  vmovss xmm1,dword[rsp+0x30]
+  vmovss xmm2,dword[rsp+0x2C]
+  vmovss xmm3,dword[rsp+0x28]
+  vmovss xmm4,dword[rsp+0x24]
   call in_circle
 
   lea rcx,[ans1]
@@ -67,5 +66,5 @@ main:
   call printf 
 
   xor eax,eax 
-  add rsp,0x48
+  add rsp,0x38
   ret 
