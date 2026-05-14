@@ -9,8 +9,7 @@ segment .data
   msg db "Gimme roots (r1,r2): ",0
   fmt db "%lf %lf",0 
   ans db "Coefficients : a = 1 , b = %g , c = %g",0xA,0xA,0 
-
-  negA  dq -1.00
+  neg1 dq -1.00
 
 segment .bss
   b resq 1
@@ -24,15 +23,14 @@ coefficients:
   ; Assuming a=1 , for simplicity 
   ; Sum of roots : r1 + r2  = -b / a 
   ; b = -a(r1+r2)
-  movapd xmm2 ,xmm0 
-  addsd xmm2,xmm1 
-  mulsd xmm2,[negA]
-  movsd qword[b],xmm2 
+  vaddsd xmm2,xmm0,xmm1 
+  vmulsd xmm2,xmm2,[neg1]
+  vmovsd qword[b],xmm2 
 
   ;Product of roots : r1r2 = c / a 
   ;c = a(r1r2)
-  mulsd xmm0,xmm1 
-  movsd qword[c],xmm0  
+  vmulsd xmm2,xmm0,xmm1 
+  vmovsd qword[c],xmm0  
   ret 
 
 main:
@@ -47,13 +45,13 @@ main:
   lea r8,[rsp+0x28]
   call scanf
 
-  movsd xmm0,qword[rsp+0x30]
-  movsd xmm1, qword[rsp+0x28]
+  vmovsd xmm0,qword[rsp+0x30]
+  vmovsd xmm1,qword[rsp+0x28]
   call coefficients 
 
   lea rcx,[ans]
-  movsd xmm1,[b]
-  movsd xmm2,[c]
+  vmovsd xmm1,[b]
+  vmovsd xmm2,[c]
   mov rdx,[b]
   mov r8, [c]
   call printf 
