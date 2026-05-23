@@ -5,7 +5,7 @@ This repo. is a stepping stone for me in  the way of learning SIMD and insintric
 It contains simple Assembly programs written using NASM. It follows Windows ABI and works on Intel and AMD chips. 
 It's basically a reference for me or other people.
 
-It'll be updated when I feel like writing something in Assembly. I've also added few SIMD operations. Learning SIMD is fun, but there's not a single place to learn it. You'll have to become an adventurer to learning it collecting knowledge bit by bit.
+It'll be updated when I feel like writing something in Assembly. I've also added few SIMD operations. Learning SIMD is fun, but there's not a single place to learn it. You'll have to become an adventurer to learning it collecting knowledge bit by bit. The goal is to write a fun Linear algebra library and benchmark it against some OpenGL's math lib `glm`.It'll be done soon hopefully.
 
 The SIMD instruction use AVX Instruction set which will work with both Intel and AMD CPUs just fine.
 
@@ -50,7 +50,7 @@ help neko -Examples
 - Windows ABI Docs. Bit weird things there but can't write Windows assembly without it: https://learn.microsoft.com/en-us/cpp/build/x64-software-conventions?view=msvc-170 
 - [Compiler Explorer](https://godbolt.org/) by Matt Godbolt.Compiler explorer is I think all you need after learning basics of Assembly to learn further Assembly. Just look at how different compilers do stuff at different level of optimization.
 - [SIMD for C++ Dev](http://const.me/) by Konstantin . It's very short and sweet. It has very simple diagrams for awful...awful instruction such as shuffle, blend,broadcast.
-- [Intel Intrinsics guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html) by Intel. It's very cool guide and it has pseudocode for instructions so it can be helpful most of the time. Use AVX Instruction set 
+- [Intel Intrinsics guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html) It's very cool guide and it has pseudocode for instructions so it can be helpful most of the time. Use AVX Instruction set 
 
 
 
