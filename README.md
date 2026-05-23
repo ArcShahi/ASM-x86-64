@@ -5,10 +5,11 @@ This repo. is a stepping stone for me in  the way of learning SIMD and insintric
 It contains simple Assembly programs written using NASM. It follows Windows ABI and works on Intel and AMD chips. 
 It's basically a reference for me or other people.
 
-It'll be updated when I feel like writing something in Assembly. Soon enough I'll add SIMD instructions.
+It'll be updated when I feel like writing something in Assembly. I've also added few SIMD operations. Learning SIMD is fun, but there's not a single place to learn it. You'll have to become an adventurer to learning it collecting knowledge bit by bit.
 
+The SIMD instruction use AVX Instruction set which will work with both Intel and AMD CPUs just fine.
 
-I use my [custom PowerShell script](https://gist.github.com/ArcShahi/eb3bbc0568130a1519e604e476ec13b6) to Assembly and link. Trust me we'll need it. It's not that sophisticated yet, but it'll do for now. Add it environment path to call it from anywhere.
+I use my [custom PowerShell script](https://gist.github.com/ArcShahi/eb3bbc0568130a1519e604e476ec13b6) to Assembly and link. Trust me we'll need it. It's not that sophisticated yet, but it'll do for now. Add it to environment path to call it from anywhere.
 
 See help on how to use it , it's simple.
 
@@ -35,7 +36,7 @@ help neko -Examples
 4. Can It run faster than High level languages tho? 
 
     Hell no. 
-5. Any recommendation , issues question ? 
+5. Any recommendation , issues or question ? 
 
     Create an issue...I've nothing better to do all day anyways.
 
@@ -48,7 +49,8 @@ help neko -Examples
 - For quick Instruction references. It's exremelly helpful : https://www.felixcloutier.com/x86/
 - Windows ABI Docs. Bit weird things there but can't write Windows assembly without it: https://learn.microsoft.com/en-us/cpp/build/x64-software-conventions?view=msvc-170 
 - [Compiler Explorer](https://godbolt.org/) by Matt Godbolt.Compiler explorer is I think all you need after learning basics of Assembly to learn further Assembly. Just look at how different compilers do stuff at different level of optimization.
-
+- [SIMD for C++ Dev](http://const.me/) by Konstantin . It's very short and sweet. It has very simple diagrams for awful...awful instruction such as shuffle, blend,broadcast.
+- [Intel Intrinsics guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html) by Intel. It's very cool guide and it has pseudocode for instructions so it can be helpful most of the time. Use AVX Instruction set 
 
 
 
