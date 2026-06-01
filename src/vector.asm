@@ -71,6 +71,6 @@ cross_product:
 
   vshufps xmm1,xmm1,xmm1,0x52 ; same mask : rotate right xmm1={y,z,x,x}
   vshufps xmm2,xmm2,xmm2,0x09 ; same mask : rotate left  xmm2={z,x,y,y}
-  vfmsub231 xmm0,xmm1,xmm2    ; xmm0 = xmm1*xmm2 - xmm0 : Cross product 
+  vfmsub231ps xmm0,xmm1,xmm2    ; xmm0 = xmm1*xmm2 - xmm0 : Cross product 
   vmovups [rcx],xmm0 
   ret 
