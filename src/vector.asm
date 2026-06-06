@@ -3,14 +3,15 @@
 ; AVX cuts us some slacking... the memory for load and operations  don't need to be 16B or 32B aligned 
 ; But I'm still making struct aligned (16B) 
 
-; Vector from C++ perspective : 
-; struct alignas(16) Vec3{float x{},y{},z{}}; 
+; Vector from C++ perspective : else get ready for chaos
+; struct alignas(16) Vec3{float x{},y{},z{}};  The compiler will add 4B padding
 ; struct alignas(16) Vec4{float x{},y{},z{},w{}}; 
+
+
 
 default rel
 
 global Vec3_add,Vec4_add,Vec3_scale,Vec4_scale,Vec3_dot,Vec4_dot,cross_product
-
 export Vec3_add
 export Vec3_scale
 export Vec4_scale
@@ -21,7 +22,7 @@ export cross_product
 
 segment .text
 
-; void add(Vec3& dest,Ve3& u,Vec3& v)
+; void add(Vec3& dest,Ve3& u,Vec3& v) 
 Vec3_add:
  vmovaps xmm0,[rdx]
  vmovaps xmm1,[r8]
