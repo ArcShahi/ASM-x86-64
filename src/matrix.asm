@@ -6,9 +6,10 @@
 
 default rel
 
-global mat4x4_scale
+global mat4x4_scale,mat4x4_add
 
 export mat4x4_scale 
+export mat4x4_add 
 
 segment .text
 
@@ -24,6 +25,15 @@ mat4x4_scale:
   vmovups [rcx+0x20],ymm0 
   ret 
 
+; void mat4x4_add(mat4x4& dest,mat4x4& a,mat4x4& b);
+; [rcx]=[rdx]+[r8]
+mat4x4_add:
+  vmovups ymm1,[rdx]
+  vaddps ymm0,ymm1,[r8]
+  vmovups [rcx],ymm0 
 
-;mat4x4_mul_mat4x4:
+  vmovups ymm1,[rdx+0x20]
+  vaddps  ymm0,ymm1,[r8+0x20]
+  vmovups [rcx+0x20],ymm0 
 
+  ret 
