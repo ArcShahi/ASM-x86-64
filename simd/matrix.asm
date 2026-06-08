@@ -37,3 +37,12 @@ mat4x4_add:
   vmovups [rcx+0x20],ymm0 
 
   ret 
+
+; void __(mat4x1& dest,mat4x4& a,mat4x1& b)
+; the 4x1 matrix or 1x4 matrix is just vec4 , just the representation changes
+; [rcx]=[rdx]*[r8]
+mat4x4_mul_mat4x1:
+ ; [row0 do vec]
+ ; [row1 dot vec...]
+
+
