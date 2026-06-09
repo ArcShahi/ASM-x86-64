@@ -7,10 +7,11 @@
 
 default rel
 
-global mat4x4_scale,mat4x4_add
+; We can just include "utils.mac" by passing -i<include\> flag to nasm
+%include "include/utils.mac"
 
-export mat4x4_scale 
-export mat4x4_add 
+global mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1
+export_symbols mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1
 
 segment .text
 

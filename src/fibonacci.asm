@@ -2,7 +2,7 @@
 
 default rel
 
-%include "utils.mac"
+%include "include/utils.mac"
 
 extern _CRT_INIT,printf,scanf
 global main 
