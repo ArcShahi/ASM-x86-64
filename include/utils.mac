@@ -39,6 +39,14 @@
  %endrep
 %endmacro
 
+; Export symbols for lib files 
+%macro export_symbols 1-*
+ %rep %0
+  export %1 
+  %rotate 1
+ %endrep
+%endmacro
+
 ; Will Add More when needed...
 
 %endif
