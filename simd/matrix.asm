@@ -1,5 +1,6 @@
 ; AVX Matrix Operations 
 
+
 ; General Matrix from C++ perspective struct matMxN { std::array<vecN,M> value;};
 ; Not aligned to 32 B for YMM
 
@@ -42,7 +43,21 @@ mat4x4_add:
 ; the 4x1 matrix or 1x4 matrix is just vec4 , just the representation changes
 ; [rcx]=[rdx]*[r8]
 mat4x4_mul_mat4x1:
- ; [row0 do vec]
- ; [row1 dot vec...]
+  
+  vmovups ymm1,[rdx]              ; load 2 rows : r0 r1 
+  vmovaps xmm2,[r8]               ; Entire vec4 or mat4x1 loaded at once
+
+  vdpps xmm0,xmm1,xmm2,0xF1       ; xmm0 [31:0]  = [r0 dot v]
+  
+  vperm2f128 ymm1,ymm1,ymm1,0x01  ; Swapped: r0 <-> r1 
+  vdpps xmm0,xmm1,xmm2,0xF2       ; xmm0 [63:32] = [r1 dot v]
+
+  vmovups ymm1,[rdx+0x20]         ; Load next 2 rows : r2 , r3 
+  vdpps xmm0,xmm1,xmm2,0xF4       ; xmm0 [95:64] = [r2 dot v]
+
+  vperm2f128 ymm1,ymm1,ymm1,0x01  ; Swppaed : r2 <-> r3 
+  vdpps xmm0,xmm1,xmm2,0xF8       ; xmm0 [127:96] = [r3 dot v]
+
+  ret 
 
 
