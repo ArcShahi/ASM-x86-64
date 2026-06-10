@@ -39,6 +39,23 @@
  %endrep
 %endmacro
 
+%macro multipush_ymm 1-*
+%rep %0
+    sub rsp, 0x20
+    vmovdqu yword [rsp], %1  ; can call even stack isn't aligned to 16B 
+ %rotate 1
+%endrep
+%endmacro
+
+
+%macro multipop_ymm 1-*
+%rep %0
+ %rotate -1
+    vmovdqu    %1, yword [rsp]
+    add rsp, 0x20
+%endrep
+%endmacro
+
 ; Export symbols for lib files 
 %macro export_symbols 1-*
  %rep %0
