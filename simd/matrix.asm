@@ -15,6 +15,8 @@ export_symbols mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1
 
 segment .text
 
+ 
+
 ;void mat4x4_scale(mat4x4& dest, float f,mat4x4& a)
 ; [rcx]=xmm1*[r8]
 mat4x4_scale:
@@ -46,19 +48,60 @@ mat4x4_add:
 mat4x4_mul_mat4x1:
   
   vmovups ymm1,[rdx]              ; load 2 rows : r0 r1 
-  vmovaps xmm2,[r8]               ; Entire vec4 or mat4x1 loaded at once
+  vmovups ymm2,[rdx+0x20]         ; load r2,r3 
+  vmovaps xmm3,[r8]               ; Entire vec4 or mat4x1 loaded at once
 
-  vdpps xmm0,xmm1,xmm2,0xF1       ; xmm0 [31:0]  = [r0 dot v]
-  
-  vperm2f128 ymm1,ymm1,ymm1,0x01  ; Swapped: r0 <-> r1 
-  vdpps xmm0,xmm1,xmm2,0xF2       ; xmm0 [63:32] = [r1 dot v]
+  vdpps xmm0,xmm1,xmm3,0xF1       ; xmm0 [31:0]  = [r0 dot v]
+  vextractf128 xmm4,ymm1,0x01     ; pull r1 from ymm1[255:128] to xmm4
+  vdpps xmm0,xmm4,xmm3,0xF2       ; xmm0 [63:32] = [r1 dot v]
+  vdpps xmm0,xmm2,xmm3,0xF4       ; xmm0 [95:64] = [r2 dot v]
 
-  vmovups ymm1,[rdx+0x20]         ; Load next 2 rows : r2 , r3 
-  vdpps xmm0,xmm1,xmm2,0xF4       ; xmm0 [95:64] = [r2 dot v]
-
-  vperm2f128 ymm1,ymm1,ymm1,0x01  ; Swppaed : r2 <-> r3 
+  vextractf128 xmm4,ymm2,0x01     ; pull r3 from ymm2[255:128] to xmm4 
   vdpps xmm0,xmm1,xmm2,0xF8       ; xmm0 [127:96] = [r3 dot v]
+  vmovups [rcx],xmm0              ; Write back result 
 
   ret 
+
+
+; void __(mat4x4& dest,mat4x4& a,mat4x4& b);
+mat4x4_mul_mat4x4:
+  
+  multipush rbx,rdi,rsi,rbp,r12
+ 
+  ; Transpose b
+ xor eax,eax ; i 
+loopR1:
+  lea ebx,[eax+1] ; j=i+1 (Upper triangle only)
+  loopC1:
+    ;B[i][j]=offset=(i*4+j)*4 
+    lea r9,[rax*4+rbx]
+    mov esi,[r8*r9*4]  ; load B[i][j]
+
+    ; B[j][i]=offset(j*4+i)*4 
+    lea r12,[rbx*4+rax]
+    mov edi,[r8*r12*4] ; load B[j][i]
+
+    ; Swap 
+    mov[r8+r9*4],edi 
+    mov[r8+r12*4],esi
+
+    inc ebx
+    cmp ebx,4 
+    jl .loopC
+ 
+ inc eax 
+ cmp eax , 3  ; (N-1 )
+ jl .loopR 
+
+; Now multiply : TODO 
+
+
+
+
+
+
+
+
+
 
 
