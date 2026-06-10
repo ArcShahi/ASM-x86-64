@@ -26,7 +26,12 @@ Keep in mind to properly assembly files that include some headers file not in cu
 # Pass the include directory. The path is relative to where the script was run.
 neko src\main.asm -OutDir out -ExtraNasmArgs "-I include\"
 ```
+or we can use `-P` flag to preinclude a file, it's equivalent to placing`%include "utils.mac"` at start of src file(s). 
 
+```powershell
+neko src\main.asm -ExtraNasmArgs "-P include\utils.mac"
+```
+The paths are relative to where the srcipt was run.
 
 ### Questions ?
 
