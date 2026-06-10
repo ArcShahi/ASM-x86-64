@@ -20,6 +20,13 @@ help neko
 help neko -Examples
 ```
 
+Keep in mind to properly assembly files that include some headers file. We've to 
+
+```powershell
+# Pass the include directory. The path is relative to where the script was run.
+neko src\main.asm -OutDir out -ExtraNasmArgs "-I include\"
+```
+
 
 ### Questions ?
 
