@@ -1,6 +1,6 @@
 default rel
 
-%include "include/utils.mac"
+%include "utils.mac"
 
 extern _CRT_INIT,printf,scanf,malloc
 global main
