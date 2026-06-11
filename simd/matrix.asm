@@ -63,39 +63,10 @@ mat4x4_mul_mat4x1:
   ret 
 
 
-; void __(mat4x4& dest,mat4x4& a,mat4x4& b);
-mat4x4_mul_mat4x4:
+ ; REMOVED max4x4 for now
+
+   
   
-  multipush rbx,rdi,rsi,rbp,r12
- 
-  ; Transpose b
- xor eax,eax ; i 
-loopR1:
-  lea ebx,[eax+1] ; j=i+1 (Upper triangle only)
-  loopC1:
-    ;B[i][j]=offset=(i*4+j)*4 
-    lea r9,[rax*4+rbx]
-    mov esi,[r8*r9*4]  ; load B[i][j]
-
-    ; B[j][i]=offset(j*4+i)*4 
-    lea r12,[rbx*4+rax]
-    mov edi,[r8*r12*4] ; load B[j][i]
-
-    ; Swap 
-    mov[r8+r9*4],edi 
-    mov[r8+r12*4],esi
-
-    inc ebx
-    cmp ebx,4 
-    jl .loopC
- 
- inc eax 
- cmp eax , 3  ; (N-1 )
- jl .loopR 
-
-; Now multiply : TODO 
-
-
 
 
 
