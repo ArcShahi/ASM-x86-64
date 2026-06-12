@@ -1,21 +1,16 @@
 ; AVX Matrix Operations 
-
-
 ; General Matrix from C++ perspective struct matMxN { std::array<vecN,M> value;};
 ; Not aligned to 32 B for YMM
-
-
 default rel
 
 ; We can just include "utils.mac" by passing -i<include\> flag to nasm
-%include "include/utils.mac"
+%include "utils.mac"
 
-global mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1
-export_symbols mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1
+; TODO move them to : matrix.inc ( when they get larger)
+global mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1,mat4x4_mul_mat4x4 
+export_symbols mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1,mat4x4_mul_mat4x4
 
 segment .text
-
- 
 
 ;void mat4x4_scale(mat4x4& dest, float f,mat4x4& a)
 ; [rcx]=xmm1*[r8]
@@ -63,7 +58,48 @@ mat4x4_mul_mat4x1:
   ret 
 
 
- ; REMOVED max4x4 for now
+ ; void multiply(mat4x4* dest,mat4x4* A,mat4x4* B)
+ ; Assuming one of the matrices are Transposed 
+mat4x4_mul_mat4x4:
+ 
+  ; Pushing ymm6 on stack 
+  sub rsp,0x20
+  vmovups [rsp],ymm6 
+
+  ; load r0,r1 of B then r2,r3
+  vmovups ymm1,[r8]
+  vmovups ymm2,[r8+0x20] 
+  xor eax,eax  ; i 
+
+.loop:
+  vmovups xmm0,[rdx+rax] ; Load only 1 row from A 
+  vextractf128 xmm4,ymm1,0x01 ; xmm4[127:0]=ymm1[255:128] = B r1 
+  vextractf128 xmm6,ymm2,0x01 ; xmm6[127:0]=ymm2[255:128] = B r3
+
+  vdpps xmm3,xmm0,xmm1,0xF1   ; xmm3[0]=xmm0 dot xmm1 = A row_i dot B r0 
+  vdpps xmm4,xmm0,xmm4,0xF1   ; xmm4[0]=xmm0 dot xmm4 = A row_i dot B r1 
+
+  vdpps xmm5,xmm0,xmm2,0xF1   ; xmm5[0]=xmm0 dot xmm2 = A row_i dot B r2 
+  vdpps xmm6,xmm0,xmm6,0xF1   ; xmm6[0]=xmm0 dot xmm6 = A row_i dot B r3 
+
+  ; pack the result back to xmm0 
+  vinsertps xmm0,xmm0,xmm3,0x00  ; xmm0[0]=xmm3[0]
+  vinsertps xmm0,xmm0,xmm4,0x10  ; xmm0[1]=xmm4[0]
+  vinsertps xmm0,xmm0,xmm5,0x20  ; xmm0[2]=xmm5[0]
+  vinsertps xmm0,xmm0,xmm6,0x30  ; xmm0[3]=xmm6[0] 
+ 
+  vmovups [rcx+rax],xmm0 
+  add eax,0x10 ; move 16B next row of A
+  cmp eax,0x40 ; cmp with 64 B 
+  jb .loop
+
+  vmovups ymm6,[rsp]
+  add rsp,0x20
+  ret 
+
+
+
+ 
 
    
   
