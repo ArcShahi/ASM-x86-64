@@ -3,12 +3,9 @@
 ; Not aligned to 32 B for YMM
 default rel
 
-; We can just include "utils.mac" by passing -i<include\> flag to nasm
+; Pass  -i<include\> flag to nasm to look for search dir outside src tree 
 %include "utils.mac"
-
-; TODO move them to : matrix.inc ( when they get larger)
-global mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1,mat4x4_mul_mat4x4 
-export_symbols mat4x4_scale,mat4x4_add,mat4x4_mul_mat4x1,mat4x4_mul_mat4x4
+%include "matrix.inc" 
 
 segment .text
 
@@ -96,19 +93,3 @@ mat4x4_mul_mat4x4:
   vmovups ymm6,[rsp]
   add rsp,0x20
   ret 
-
-
-
- 
-
-   
-  
-
-
-
-
-
-
-
-
-
