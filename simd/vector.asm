@@ -7,18 +7,9 @@
 ; struct alignas(16) Vec3{float x{},y{},z{}};  The compiler will add 4B padding
 ; struct alignas(16) Vec4{float x{},y{},z{},w{}}; 
 
-
-
 default rel
 
-global Vec3_add,Vec4_add,Vec3_scale,Vec4_scale,Vec3_dot,Vec4_dot,cross_product
-export Vec3_add
-export Vec3_scale
-export Vec4_scale
-export Vec3_dot
-export Vec4_dot
-export Vec4_add
-export cross_product
+%include "vector.inc"
 
 segment .text
 
