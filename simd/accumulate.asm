@@ -19,14 +19,15 @@ accumulate:
   xor eax,eax  ; i 
 
 .loop:
-  vmovups ymm1,[rcx+rax*4] ; load 8 elements
-  vhaddps ymm1,ymm1,ymm1 
-  vhaddps ymm1,ymm1,ymm1 
-  vextractf128 xmm0,ymm1,0x01 
-  vaddss xmm0,xmm0,xmm1 
+  vaddps ymm0,ymm0,[rcx+rax*4]  
   add eax,0x08 
   cmp eax,r8d 
   jb .loop 
+
+  vhaddps ymm0,ymm0,ymm0 
+  vhaddps ymm0,ymm0,ymm0 
+  vextractf128 xmm1,ymm0,0x01 
+  vaddss xmm0,xmm0,xmm1 
 
   test edx,edx 
   jz .done
@@ -36,8 +37,7 @@ accumulate:
   xor eax,eax 
 
 .loop2:
-  vmovss xmm1,[r9+rax*4]
-  vaddss xmm0,xmm0,xmm1 
+  vaddss xmm0,xmm0,[r9+rax*4]
   inc eax
   cmp eax,edx 
   jb .loop2 
