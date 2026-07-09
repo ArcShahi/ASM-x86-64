@@ -71,3 +71,17 @@ cross_product:
   vfmsub231ps xmm0,xmm1,xmm2  ; xmm0 = xmm1*xmm2 - xmm0 : Cross product 
   vmovaps [rcx],xmm0 
   ret 
+
+ ; void reflect(Vec3& ref,Vec3& V,Vec3& N)
+ ; ref = V - 2(V ⋅N)N
+ Vec3_reflect:
+  vmovaps xmm1,[rdx]
+  vdpps xmm0,xmm1,[r8],0xF1  ; xmm0=dp :  0b1111_0001 : dot(V,N) in lane 0 
+  vaddss xmm0,xmm0,xmm0       ; 2dp 
+  vbroadcastss xmm0,xmm0      ; [2dp | 2dp | 2dp | 2dp]
+  vmulps xmm0,xmm0,[r8]       ; Scaling the normal by 2DP
+  vsubps xmm0,xmm1,xmm0       ; Subtracting from V 
+  vmovaps [rcx],xmm0          ; write the result back
+  ret 
+  
+  
