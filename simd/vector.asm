@@ -77,11 +77,45 @@ cross_product:
  Vec3_reflect:
   vmovaps xmm1,[rdx]
   vdpps xmm0,xmm1,[r8],0xF1  ; xmm0=dp :  0b1111_0001 : dot(V,N) in lane 0 
-  vaddss xmm0,xmm0,xmm0       ; 2dp 
+  vaddss xmm0,xmm0,xmm0       ; dp*dp 
   vbroadcastss xmm0,xmm0      ; [2dp | 2dp | 2dp | 2dp]
   vmulps xmm0,xmm0,[r8]       ; Scaling the normal by 2DP
   vsubps xmm0,xmm1,xmm0       ; Subtracting from V 
   vmovaps [rcx],xmm0          ; write the result back
   ret 
   
-  
+
+; void refract(rcx=Vec3& dest,rdx=Vec3& I,r8=Vec3& N,xmm3=float eta)
+; T = nI-(n(dot(I,N)+sqrt(k))N 
+  Vec3_refract:
+    vmovaps xmm2,[rdx]        ; xmm2 = Incident ray (I)
+    mov eax,0x3f800000        ; IEEE-754 ecoding for : 1.0 
+    vmovd xmm1,eax            ; xmm1 = 1.0 
+    
+    vdpps xmm0,xmm2,[r8],0xF1    ; xmm0 = dot(I,N) : 0b1111_0001 in lane 0 
+    vmulss xmm5,xmm0,xmm0        ; xmm5 = dp^2 
+    vsubss xmm5,xmm1,xmm5        ; xmm5 = 1 - dp^2 
+    vmulss xmm4,xmm3,xmm3        ; xmm4 : eta^2 
+    vmulss xmm5,xmm5,xmm4        
+    vsubss xmm5,xmm1,xmm5        ; xmm5 = k 
+    
+    vxorps xmm4,xmm4,xmm4 
+    vcomiss xmm5,xmm4
+    jb .tir
+
+   ; calculate refraction if : 0 < k
+   vbroadcastss xmm3,xmm3        ; xmm3= [eta|eta|eta|eta]
+   vmulps xmm2,xmm3,xmm2         ; xmm2= eta*I
+   vsqrtss xmm5,xmm5,xmm5        ; xmm5= sqrt(k)
+   vmulss xmm0,xmm3,xmm0         ; xmm0= eta*dot(I,N) 
+   vaddss xmm0,xmm0,xmm5   
+   vbroadcastss xmm0,xmm0 
+   vmulps xmm0,xmm0,[r8] 
+   vsubps xmm0,xmm2,xmm0 
+   vmovaps [rcx],xmm0  
+   ret 
+
+  .tir:
+    vxorps xmm0,xmm0,xmm0
+    vmovaps [rcx],xmm0 
+    ret 
