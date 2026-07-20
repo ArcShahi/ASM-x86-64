@@ -1,39 +1,51 @@
 # ASM-x86-64
 
-This repo. is a stepping stone for me in  the way of learning SIMD and insintrics.  
+This repo. is a sandbox. It contains implementation of mathematical formulas and alogrithms. It uses NASM syntax , follows x64(Windows) ABI , for Intel & AMD chips.
 
-It contains simple Assembly programs written using NASM. It follows Windows ABI and works on Intel and AMD chips. 
+**Implemented almost every function we'll need to create a standalone linear algebra library**.
 It's basically a reference for me or other people.
 
-It'll be updated when I feel like writing something in Assembly. I've also added few SIMD operations. Learning SIMD is fun, but there's not a single place to learn it. You'll have to become an adventurer to learning it collecting knowledge bit by bit. The goal is to write a fun Linear algebra library and benchmark it against some OpenGL's math lib `glm`.It'll be done soon hopefully.
 
-The SIMD instruction use AVX Instruction set which will work with both Intel and AMD CPUs just fine.
+It'll be updated when I feel like writing something in Assembly. I've also added SIMD operations. Learning SIMD is fun, but there's not a single place to learn it. You'll have to become an adventurer to learning it collecting knowledge bit by bit. The goal is to have fun writing assembly and possibly benchmark it against popular libraries.
 
-I use my [custom PowerShell script](https://gist.github.com/ArcShahi/eb3bbc0568130a1519e604e476ec13b6) to Assembly and link. Trust me we'll need it. It's not that sophisticated yet, but it'll do for now. Add it to environment path to call it from anywhere.
 
-See help on how to use it , it's simple.
+The SIMD instruction use `AVX2` instruction set which will work with both Intel and AMD CPUs just fine.
 
-```powershell
-# You'll see complete help description ( Use PowerShell )
-help neko
-# See example usage
-help neko -Examples
-```
+I use my custom [PowerShell script](https://gist.github.com/ArcShahi/eb3bbc0568130a1519e604e476ec13b6) to Assemble and link or create a `.lib`.  Trust me we'll need it.
 
-Keep in mind to properly assembly files that include some headers file not in current dir, We've to :
 
-```powershell
-# Pass the include directory. The path is relative to where the script was run.
-neko src\main.asm -OutDir out -ExtraNasmArgs "-I include\"
-```
-or we can use `-P` flag to preinclude a file, it's equivalent to placing`%include "utils.mac"` at start of src file(s). 
+>[!error] Fun only...
+> Use : BLAS, Intel MKL, Eigen, GLM, Direct X Maths libraries for anything serious.
 
-```powershell
-neko src\main.asm -ExtraNasmArgs "-P include\utils.mac"
-```
-The paths are relative to where the srcipt was run.
 
-### Questions ?
+## Usage
+
+**Use it only if your learning or testing assembly**.
+```cpp
+// Include a header with function defintions
+extern "C" Vec3_add(Vec3* dest,Vec3* u,Vec3* v);
+// ... and so one 
+
+// use it 
+
+Vec3 v{3.0f,6.9f,4.20f};
+Vec3 u{1.0f,11.f,111.f};
+Vec3 res{};
+
+Vec3_add(&res,&u,&v);
+
+````
+
+
+
+## TODO :
+- Matrix operations
+- Testing 
+- Benchmarking against `glm`
+- Quaternion operations
+
+
+## Questions ?
 
 
 1. Why not use Syscall for IO ? 
@@ -52,7 +64,14 @@ The paths are relative to where the srcipt was run.
 
     Create an issue...I've nothing better to do all day anyways.
 
+----
 
+## AI POLICY :
+
+AI usage for code generation and documentation is forbidden for this project.
+> Shahi (*prefers natural stupidity over artificial intelligence*)
+
+----
 
 ## References : 
 
@@ -64,5 +83,7 @@ The paths are relative to where the srcipt was run.
 - [SIMD for C++ Dev](http://const.me/) by Konstantin . It's very short and sweet. It has very simple diagrams for awful...awful instruction such as shuffle, blend,broadcast.
 - [Intel Intrinsics guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html) It's very cool guide and it has pseudocode for instructions so it can be helpful most of the time. Use AVX Instruction set 
 
+
+----
 
 
