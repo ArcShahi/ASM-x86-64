@@ -14,7 +14,7 @@ The SIMD instruction use `AVX2` instruction set which will work with both Intel 
 I use my custom [PowerShell script](https://gist.github.com/ArcShahi/eb3bbc0568130a1519e604e476ec13b6) to Assemble and link or create a `.lib`.  Trust me we'll need it.
 
 
->[!error] Fun only...
+>[!IMPORTANT] Fun only...
 > Use : BLAS, Intel MKL, Eigen, GLM, Direct X Maths libraries for anything serious.
 
 
@@ -33,6 +33,8 @@ Vec3 u{1.0f,11.f,111.f};
 Vec3 res{};
 
 Vec3_add(&res,&u,&v);
+
+std::println("x {} y {} z {}",res.x,res.y,res.z);
 
 ````
 
