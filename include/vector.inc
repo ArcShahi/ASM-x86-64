@@ -4,6 +4,7 @@
 ; Make them visisble to linker
 global Vec3_add
 global Vec4_add 
+global Vec3_normalize
 global Vec3_reflect
 global Vec3_refract
 global Vec3_scale 
@@ -15,6 +16,7 @@ global cross_product
 ; Tell linker to include it into symbol export table
 export Vec3_add
 export Vec3_scale
+export Vec3_normalize
 export Vec3_reflect
 export Vec3_refract
 export Vec4_scale

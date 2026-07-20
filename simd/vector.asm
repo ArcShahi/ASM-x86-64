@@ -119,3 +119,21 @@ cross_product:
     vxorps xmm0,xmm0,xmm0
     vmovaps [rcx],xmm0 
     ret 
+
+
+; void normalize(Vec3& dest,Vec3& V)
+Vec3_normalize:
+  vmovaps xmm0,[rdx] 
+  vdpps xmm1,xmm0,xmm0,0xF1      ; dot(V,V)=||V||^2 
+
+  vxorps xmm2,xmm2,xmm2 
+  vcomiss xmm1,xmm2 
+  je .zero
+
+  vrsqrtss xmm1,xmm1,xmm1   ; 1 / mag 
+  vbroadcastss xmm1,xmm1 
+  vmulps xmm2,xmm0,xmm1     ; Normalize if len != 0 
+
+.zero:
+  vmovaps [rcx],xmm2 
+  ret 
