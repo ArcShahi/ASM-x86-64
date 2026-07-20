@@ -1,6 +1,6 @@
 # ASM-x86-64
 
-This repo. is a sandbox. It contains implementation of mathematical formulas and alogrithms. It uses NASM syntax , follows x64(Windows) ABI , for Intel & AMD chips.
+**Assembly sandbox**: implementation of mathematical formulas,alogrithms and others. It uses NASM syntax , follows x64(Windows) ABI , for Intel & AMD chips.
 
 **Implemented almost every function we'll need to create a standalone linear algebra library**.
 It's basically a reference for me or other people.
@@ -20,13 +20,13 @@ I use my custom [PowerShell script](https://gist.github.com/ArcShahi/eb3bbc05681
 
 ## Usage
 
-**Use it only if your learning or testing assembly**.
+**Use it only if you're learning or testing assembly**.
 ```cpp
 // Include a header with function defintions
 extern "C" Vec3_add(Vec3* dest,Vec3* u,Vec3* v);
-// ... and so one 
+// ... and so on
 
-// use it 
+// use it in .cpp
 
 Vec3 v{3.0f,6.9f,4.20f};
 Vec3 u{1.0f,11.f,111.f};
