@@ -39,12 +39,11 @@ std::println("x {} y {} z {}",res.x,res.y,res.z);
 ````
 
 
-
 ## TODO :
-- Matrix operations
 - Testing 
 - Benchmarking against `glm`
-- Quaternion operations
+- Quaternions for transformation
+- ~~Matrix rotation (Tait-Bryan angles)~~
 
 
 ## Questions ?
