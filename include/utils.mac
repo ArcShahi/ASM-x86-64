@@ -25,7 +25,7 @@
 %macro multipush_xmm 1-* 
  %rep %0 
     sub rsp,0x10 ; RSP moves 8B by default,but we need 16B to store xmm regs. Still Aligned to 16B 
-    movdqu oword[rsp],%1 ; moves double quad word (octa word) , 16B(128b) on stack  
+    vmovdqu oword[rsp],%1 ; moves double quad word (octa word) , 16B(128b) on stack  
     %rotate 1
  %endrep
 %endmacro 
@@ -34,7 +34,7 @@
 %macro multipop_xmm 1-*
  %rep %0
     %rotate -1
-    movdqu    %1, oword [rsp]
+    vmovdqu    %1, oword [rsp]
     add rsp,0x10 
  %endrep
 %endmacro
@@ -71,8 +71,9 @@
 
 
 
-; movdqu : When the source or destination operand is a memory operand...
+; vmovdqu : When the source or destination operand is a memory operand...
 ; the operand may be unaligned to any alignment without causing a general-protection exception (#GP) to be generated
+; In AVX2 the memory alignment restrictions are relaxed.
 ; -Intel Manual 
 
 ; Shahi
