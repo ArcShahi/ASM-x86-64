@@ -10,7 +10,6 @@ segment .data
   fmt db "%d %d",0
   ans db "Ans : %lld",0xA,0xA,0 
 
-
 segment .text 
 
 combination:
