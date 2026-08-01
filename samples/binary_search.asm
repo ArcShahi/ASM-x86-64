@@ -106,6 +106,6 @@ main:
   call printf
 
   multipop rsi,rdi 
-  add rsp,0x38 
   xor eax,eax 
+  add rsp,0x38 
   ret 
