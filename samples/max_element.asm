@@ -12,10 +12,6 @@ segment .data
  fmt  db "%d",0
  ans  db "Largest in array: %d",0xA,0
 
-segment .bss
-  arr  resq 1
-  len  resd 1
-
 segment .text
 
 ; max_element (*arr,n)
@@ -38,7 +34,7 @@ max_element:
 main:
 
   multipush rsi,rdi 
-  sub rsp,0x28
+  sub rsp,0x38       ; 56B : 32B Shadow + 12B local + 12 Padding 
   call _CRT_INIT
 
 
@@ -46,23 +42,23 @@ main:
   call printf
 
   lea rcx,[fmt]
-  lea rdx,[len] 
+  lea rdx,qword[rsp+0x28]  ; passing the address of local variable 
   call scanf 
 
   ; Allocate Memory 
-  movsxd rcx,dword[len]
-  imul rcx,4           ; len  * sizeof(int)
-  call malloc          ; Assuming it's a success 
-  mov [arr],rax        ; copy pointer of *arr 
+  movsxd rcx,dword[rsp+0x28]
+  imul rcx,4                     ; len  * sizeof(int)
+  call malloc                    ; Assuming it's a success 
+  mov qword[rsp+0x20],rax        ; copy pointer of *arr 
 
   lea rcx,[msg2]
   call printf 
 
   xor esi,esi 
-  mov rdi,[arr]        ; load point to 0th 
+  mov rdi,qword[rsp+0x20]        ; load point to 0th 
 
 .loop:
-  cmp esi,dword [len] 
+  cmp esi,dword [rsp+0x28] 
   jge .done            ; rax>=size 
 
   lea rcx,[fmt]        ; the pvs call to scanf fucks rcx 
@@ -74,16 +70,15 @@ main:
 
 .done:
    
-   mov rcx,[arr]       ; [arr] = *arr = allocated mem addr 
-   mov edx,dword[len]  ; n
+   mov rcx,qword[rsp+0x20]       ; [arr] = *arr = allocated mem addr 
+   mov edx,dword[rsp+0x28]       ; n
    call max_element 
 
    mov rdx,rax         ; catch the ans
    lea rcx,[ans]
    call printf 
 
-
-  add rsp,0x28
+  xor eax,eax 
+  add rsp,0x38
   multipop rsi,rdi 
-  xor eax,eax
   ret
