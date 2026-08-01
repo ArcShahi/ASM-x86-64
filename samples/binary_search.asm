@@ -1,3 +1,4 @@
+; Binary search implementation
 default rel
 
 %include "utils.mac"
@@ -5,19 +6,13 @@ default rel
 extern _CRT_INIT,printf,scanf,malloc
 global main
 
-
 segment .data
   msg  db "Specify arr size: ",0
-  msg2 db "Elements in Ascending order...",0xA,0 
+  msg2 db "Elements in ascending order...",0xA,0 
   msg3 db "Value to search: ",0
   ans0 db "NOT FOUND",0xA,0xA,0
   ans1 db "FOUND @ : %d ",0xA,0xA,0 
   fmt  db "%d",0 
-
-segment .bss
-  buffer resq 1
-  size   resd 1 
-
 
 segment .text
 
@@ -45,44 +40,42 @@ binary_serach:
 
   lea r11d,[r9d+1]         ; mid+1
   lea r9d, [r9d-1]         ; mid-1 
-  cmovg edx,r9d          ; high = mid -1 
-  cmovl edi,r11d         ; low = mid + 1 
+  cmovg edx,r9d            ; high = mid -1 
+  cmovl edi,r11d           ; low = mid + 1 
 
   cmp edi,edx       
   jle .loop 
-
 
 .exit:
    pop rdi
    ret 
 
-
 main:
   multipush rsi,rdi 
-  sub rsp,0x28 
+  sub rsp,0x38 
   call _CRT_INIT
   
   lea rcx,[msg]
   call printf 
 
   lea rcx,[fmt]
-  lea rdx,[size] ; size of array 
+  lea rdx,[rsp+0x28]      ; passing the address of stack 
   call scanf  
 
   ; Allocate Memory 
-  movsxd rcx,dword[size]
-  shl rcx, 2       ; rcx * 4 , Using int 
+  movsxd rcx,dword[rsp+0x28]
+  shl rcx, 2              ; rcx * 4 , Using int 
   call malloc     
-  mov [buffer],rax ; copy pointer to array
+  mov qword[rsp+0x20],rax ; copy pointer to array
   
   lea rcx,[msg2]
   call printf 
 
   xor esi,esi
-  mov rdi,[buffer] ; ptr to start of mem addr
+  mov rdi,qword[rsp+0x20] ; ptr to start of mem addr
 
 .loop:
-  cmp esi,dword[size]
+  cmp esi,dword[rsp+0x28]
   jge .done
 
   lea rcx,[fmt]
@@ -97,14 +90,13 @@ main:
   call printf
 
   lea rcx,[fmt]
-  lea rdx,[rsp+0x24] ; (int) value to search 
+  lea rdx,[rsp+0x2C] ; (int) value to search 
   call scanf 
 
-  mov rcx,[buffer]   ; arr*
-  mov edx,dword[size]; size
-  mov r8d,[rsp+0x24] ; vale 
+  mov rcx,qword[rsp+0x20]   ; arr*
+  mov edx,dword[rsp+0x28]   ; size
+  mov r8d,dword[rsp+0x2C]   ; value
   call binary_serach
-
 
   mov edx,eax         ; copy ret val
   lea rcx,[ans0] 
@@ -113,16 +105,6 @@ main:
   cmovne rcx,rax      ; If value FOUND
   call printf
 
-
   multipop rsi,rdi 
-  add rsp,0x28
+  add rsp,0x38 
   ret 
-
-
-
-
-
-
-
-
-
