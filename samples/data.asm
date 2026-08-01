@@ -5,7 +5,7 @@ extern _CRT_INIT,printf
 global main 
 
 segment .data
-  x dq 69 ; 'x' is just some label for mem address
+  x dq 69    ; 'x' is just some label for mem address
   fmt   db "%p %d %p",0
 
 segment .text
@@ -20,6 +20,6 @@ main:
   lea r9 , [x]   ; loads address of x : r9 = &x
   call printf
 
-  xor rcx,rcx
+  xor ecx,ecx
   add rsp,0x28
   ret 
