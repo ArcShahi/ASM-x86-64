@@ -10,9 +10,6 @@ segment .data
  ans db "ANS : %lld",0xA,0
  fmt db "%d",0
 
-segment .bss
-  n resd 1
-
 segment .text
 
 solve:
@@ -32,10 +29,10 @@ main:
   call _CRT_INIT
 
   lea rcx,[fmt]
-  lea rdx,[n]
+  lea rdx,[rsp+0x20]
   call scanf
 
-  mov rcx,[n]
+  mov rcx,[rsp+0x20]
   call solve
 
   mov rdx,rax
@@ -46,6 +43,3 @@ main:
   xor eax,eax 
   add rsp,0x28
   ret
-
-  
-
