@@ -4,10 +4,9 @@ extern _CRT_INIT,printf,scanf
 global main 
 
 segment .data
-  prompt db "Hello, Gimme 2 nums: ",0xD,0xa,0
+  prompt db "Hello, gimme 2 nums: ",0xD,0xA,0
   fmt db "%lld%lld",0
   output db "Summed: %d >_<",0xD,0xA,0
-
 
 segment .text
 
@@ -40,8 +39,7 @@ main:
   add rsp,0x38 
   ret 
 
-
-
+;--------------------------------------------------
 ; RCX    RDX      R8      R9     CC     LOCAL  LOCAL
 ; [0..7][8..15][16..23][24..31][32..39][40..47][48-55]
 ; ^rsp points AT TOP
