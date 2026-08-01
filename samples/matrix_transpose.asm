@@ -6,6 +6,7 @@ default rel
 %include "utils.mac"
 
 global transpose
+export transpose 
 
 segment .text
 
@@ -39,5 +40,6 @@ transpose:
   jb .loop_row 
     
   multipop rbx,rbp,rsi,rdi
+  xor eax,eax
   ret 
 
