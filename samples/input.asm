@@ -4,17 +4,16 @@ extern _CRT_INIT,printf,scanf
 global main
 
 section .data
-  prompt db "Hello, Enter something!", 0xD, 0xA, 0
-  fmt   db "%d",0
+  prompt db "Hello, type a number !!", 0xD, 0xA, 0
+  fmt    db "%d",0
   output db "Did you type: %d >_<",0
-
 
 section .text
 
 main:
 
 ; Stack misaligned after the call to main , return address of caller of main pushed 
-  sub rsp,0x28 ; 32B Shadow space + 8B retaddrs + 8B padding = 48B aligned to 16B boundary.
+  sub rsp,0x28 ; 32B Shadow space + 8B retaddr + 8B padding = 48B aligned to 16B boundary.
   call _CRT_INIT
 
   lea rcx, [prompt]
