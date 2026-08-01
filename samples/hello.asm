@@ -9,7 +9,6 @@ segment .data
 
 segment .text
 
-
 main:
   sub rsp,0x28
   call _CRT_INIT
@@ -17,6 +16,6 @@ main:
   lea rcx,[msg]
   call printf
 
-  xor eax,eax
+  xor ecx,ecx
   add rsp,0x28
   ret 
