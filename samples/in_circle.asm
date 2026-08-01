@@ -5,13 +5,12 @@ extern _CRT_INIT,printf,scanf
 global main 
 
 segment .data
-  msg db "Gimme Point(x,y): ",0xA,0
-  msg1 db "Gimme Circle(a,b,r):",0xA,0
+  msg db "Gimme point(x,y): ",0xA,0
+  msg1 db "Gimme circle(a,b,r):",0xA,0
   fmt db "%f%f",0
   fmt1 db "%f%f%f",0
   ans0 db "Point NOT inside  or on circle",0xA,0 
-  ans1 db "Point's inside or on circle",0xA,0 
-
+  ans1 db "Point IS inside or on circle",0xA,0 
 
 segment .text 
  
