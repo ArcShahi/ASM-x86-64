@@ -1,16 +1,13 @@
+; Testing and clearing 
+
 default rel
-bits 64
+global main
+extern _CRT_INIT,printf
 
 segment .data
     output_string db "max of %ld and %ld is %ld", 0 ; The string to display, null-terminated
 
 segment .text
-global main
-
-extern printf
-extern _CRT_INIT
-extern ExitProcess
-
     ; Define constants to refer to the function arguments as offsets from RSP/RBP
     a equ    0
     b equ    8
@@ -42,15 +39,11 @@ skip:
 main:
     call _CRT_INIT                 ; Needed since our entry point is not _DllMainCRTStartup. See https://msdn.microsoft.com/en-us/library/708by912.aspx
 
-    push    rbp                 ; Set up a stack frame
-    mov    rbp, rsp             ; base pointer now points to stack frame
-    sub    rsp, 32              ; Leave room for shadow parameters (4 for windows)
+    sub    rsp, 0x28            ; Shadow space + Padding for alignment
 
     mov    rcx, 100             ; First parameter to function
     mov    rdx, 200             ; Second parameter to function
     call    print_max           ; Invoke function
 
     xor    eax, eax                ; return 0
-    leave
-
-    call ExitProcess            ; On Windows, terminates the process.
+    ret 
