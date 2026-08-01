@@ -35,7 +35,7 @@ main:
   lea rcx,[output]
   call printf
 
-  xor ecx,ecx
+  xor eax,eax
   add rsp,0x38 
   ret 
 
