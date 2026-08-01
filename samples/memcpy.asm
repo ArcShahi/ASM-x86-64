@@ -41,5 +41,6 @@ main:
   mov r8d,[dest]
   call printf
 
+  xor eax,eax
   add rsp,0x28
   ret 
