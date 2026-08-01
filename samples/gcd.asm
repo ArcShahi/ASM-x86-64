@@ -17,17 +17,17 @@ gcd:
   
   mov rax,rcx  ; rax=a 
 .loop:
-    mov r8,rdx 
-    cqo         ; Sign extend RAX->RDX ( so we can divide fucking huge numbers)
-    idiv r8     ; RAX = RDX:RAX / R8  , RDX = RDX:RAX % R8 
-    mov rax,r8  ; a,b are swapped 
-    test rdx,rdx 
-    jne .loop   ; continue till b!=0 
+  mov r8,rdx 
+  cqo         ; Sign extend RAX->RDX ( so we can divide fucking huge numbers)
+  idiv r8     ; RAX = RDX:RAX / R8  , RDX = RDX:RAX % R8 
+  mov rax,r8  ; a,b are swapped 
+  test rdx,rdx 
+  jne .loop   ; continue till b!=0 
 
 ;  rax = rax < 0  ? abs(rax) : rax 
-   test rax, rax 
-   jns .end
-   neg rax     ; rax = 0 - rax 
+  test rax, rax 
+  jns .end
+  neg rax     ; rax = 0 - rax 
   
 .end:
     ret
