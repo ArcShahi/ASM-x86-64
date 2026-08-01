@@ -107,4 +107,5 @@ main:
 
   multipop rsi,rdi 
   add rsp,0x38 
+  xor eax,eax 
   ret 
