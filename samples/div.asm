@@ -19,7 +19,6 @@ quotient:
    div rcx     ; EDX:EAX / ECX 
    ret         ; eax = Quotient 
 
-
 main:
   sub rsp,0x28
   call _CRT_INIT
