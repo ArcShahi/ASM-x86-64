@@ -1,5 +1,4 @@
 ; Accumate array based on operation ( Sum, product )
-
 default rel
 
 %include "utils.mac"
@@ -13,17 +12,13 @@ segment .data
   msg2 db  "Elements...",0xA,0
   ans  db "Accumulated : %d ",0xA,0
 
-segment .bss
-  buffer resq 1 
-  size   resd 1 
 
 segment .text
   
-; accumulate(rcx=*arr,edx=n) ; todo  impl (*arr,n,op)
+; accumulate(rcx=int* arr,rdx=int size);
 accumulate:
 
   xor eax,eax 
-
 .loop:
   test edx,edx 
    jz .done
@@ -37,31 +32,30 @@ accumulate:
 main:
 
   multipush rsi,rdi
-  sub rsp,0x28
+  sub rsp,0x38
   call _CRT_INIT
-
 
   lea rcx,[msg]
   call printf
 
   lea rcx,[fmt]
-  lea rdx,[size]
+  lea rdx,[rsp+0x28]   ; local int size; 
   call scanf
 
   ; Allocate Memory
-  movsxd rcx,dword[size]
-  imul rcx,4           ; size  * sizeof(int)
-  call malloc          ; Assuming it's a success
-  mov [buffer],rax     ; copy pointer of *arr
+  movsxd rcx,dword[rsp+0x28]
+  imul rcx,4                  ; size  * sizeof(int)
+  call malloc                 ; Assuming it's a success
+  mov qword[rsp+0x20],rax     ; copy pointer of *buff 
 
   lea rcx,[msg2]
   call printf
 
   xor esi,esi
-  mov rdi,[buffer]     ; load pointer of starting mem addr 
+  mov rdi,qword[rsp+0x20]     ; load pointer of starting mem addr 
 
 .loop:
-  cmp esi,dword [size]
+  cmp esi,dword [rsp+0x28]
   jge .done            ; rax>=size
 
   lea rcx,[fmt]        ; the pvs call to scanf fucks rcx
@@ -73,16 +67,15 @@ main:
 
 .done:
 
-   mov rcx,[buffer]       ; [arr] = *arr = allocated mem addr
-   mov edx,dword[size]    ; n
-   call accumulate
+  mov rcx,qword[rsp+0x20]         ; [arr] = *arr = allocated mem addr
+  mov edx,dword[rsp+0x28]         ; size
+  call accumulate
 
-   lea rcx,[ans]
-   mov rdx,rax 
-   call printf
+  lea rcx,[ans]
+  mov rdx,rax 
+  call printf
 
-  
-  add rsp,0x28
+  add rsp,0x38
   multipop rsi,rdi
   xor eax,eax
   ret
