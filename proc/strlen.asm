@@ -11,7 +11,6 @@ segment .data
 segment .bss
  buff resb 0x40 ; Reserve 64 Bytes
 
-
 segment .text
 
 strlen:
@@ -57,6 +56,3 @@ main:
   xor eax,eax
   add rsp,0x28 
   ret 
-
-
-
