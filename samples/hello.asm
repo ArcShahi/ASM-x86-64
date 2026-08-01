@@ -16,6 +16,6 @@ main:
   lea rcx,[msg]
   call printf
 
-  xor ecx,ecx
+  xor eax,eax
   add rsp,0x28
   ret 
