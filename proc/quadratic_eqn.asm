@@ -12,22 +12,23 @@ segment .data
   ans1 db "Double solution : x1 = x2 = %g",0xA,0xA,0 
   ans2 db "2 Complex solutions : x1 = x2 = ( %g +- %gi )", 0xA,0xA, 0
 
-  neg4 dq -4.0
-  neg1 dq -1.0
-
 segment .text
 
 ; xmm0=a,xmm1=b,xmm2=c 
 find_roots:
-  sub rsp,0x28 
+  sub rsp,0x28
+  mov rax, 0xbff0000000000000  ; -1.0 as 64-bit double
+  mov rcx, 0xc010000000000000  ; -4.0 as 64-bit double
+  vmovq xmm4,rcx               ; xmm4 = -4.0
 
-  vmulsd xmm3,xmm0,xmm2 
-  vmulsd  xmm3,xmm3,[neg4]     ; xmm3= -4ac 
+  vmulsd xmm3,xmm0,xmm2        ; xmm3= ac  
+  vmulsd  xmm3,xmm3,xmm4       ; xmm3= -4ac 
   vmulsd  xmm2,xmm1,xmm1       ; xmm2 = b^2 
   vaddsd  xmm3,xmm3,xmm2       ; xmm3= descriminant = b^2 +(-4ac) 
   vsqrtsd xmm2,xmm2,xmm3       ; xmm2= sqrt(d) 
   
-  vmulsd xmm1,xmm1,[neg1]      ; xmm1 = -b
+  vmovq  xmm4,rax              ; xmm4 = -1.0
+  vmulsd xmm1,xmm1,xmm4        ; xmm1 = -b
   vaddsd xmm0,xmm0,xmm0        ; xmm0 = 2a
   vxorpd xmm4,xmm4,xmm4  
   vcomisd xmm3,xmm4            ; compare descriminant with 0 
@@ -43,7 +44,7 @@ find_roots:
 
  ; 2 Real solution 
 .LRR:
-  vmovapd xmm4,xmm1             ; xmm4 = -b  
+  vmovsd xmm4,xmm1              ; xmm4 = -b  
   vaddsd xmm1,xmm1,xmm2 
   vdivsd xmm1,xmm1,xmm0         ; xmm1= x1 =  (-b+sqrt(d))/ 2a )
   vsubsd xmm2,xmm4,xmm2
@@ -57,10 +58,11 @@ find_roots:
 
  ; 2 Complex Solution 
 .LCR:
-  vmovapd xmm4,xmm1              ; xmm4=-b
-  vdivsd xmm1,xmm1,xmm0          ; xmm1 = real part = -b/2a 
-  vmulsd xmm2,xmm3,[neg1]        ; 'd' is -ive here, so making it positive 
-  vsqrtsd xmm2,xmm2,xmm2         ; xmm2 = sqrt(|d|)
+  vmovq xmm4,rax                 ; xmm4= -1.0 
+  vmulsd xmm2,xmm3,xmm4          ; 'd' is -ive here, so making it +ive 
+  vsqrtsd xmm2,xmm2,xmm2         ; xmm2= sqrt(|d|) 
+  vmovsd xmm4,xmm1               ; xmm4=-b
+  vdivsd xmm1,xmm1,xmm0          ; xmm1 = real part = -b/2a  
   vdivsd xmm2,xmm2,xmm0          ; xmm2 = ur gf part = sqrt(|d|)/ 2a 
   
   lea   rcx,[ans2]
@@ -68,14 +70,13 @@ find_roots:
   vmovq r8 ,xmm2                  ; Mirroring 
   call printf 
 
-
 .done:
   xor eax,eax 
   add rsp,0x28 
   ret 
 
 main: 
-  sub rsp,0x38 ; 56B : 32B shadow + 24B Local and 8B caller ret addr = 64B % 16== 0 Aligned 
+  sub rsp,0x38        ; 56B : 32B shadow + 24B Local and 8B caller ret addr = 64B % 16== 0 Aligned 
   call _CRT_INIT
 
   lea rcx,[msg]
@@ -92,7 +93,6 @@ main:
   vmovsd xmm1,qword[rsp+0x28]
   vmovsd xmm2,qword[rsp+0x20]
   call find_roots
-
 
   xor eax,eax 
   add rsp,0x38
