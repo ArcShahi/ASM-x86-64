@@ -4,7 +4,7 @@
 namespace awsm {
 
 struct alignas(16) Vec3 {
-  float x{},y{},z{},w{};
+  float x{},y{},z{};
 };
 
 struct alignas(16) Vec4 {
