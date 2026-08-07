@@ -43,7 +43,7 @@ std::println("x {} y {} z {}",res.x,res.y,res.z);
 - Testing 
 - Benchmarking against `glm`
 - Quaternions for transformation
-- ~~Matrix rotation (Tait-Bryan angles)~~
+- ~~Vector3 rotation (Tait-Bryan angles)~~
 
 
 ## Questions ?
