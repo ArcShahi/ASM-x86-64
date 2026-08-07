@@ -1,6 +1,6 @@
-; SIMD Vector operations : Add , Scale , Dot , cross 
-; AVX with VEX.128 encoding version
-; AVX cuts us some slacking... the memory for load and operations  don't need to be 16B or 32B aligned 
+; SIMD Vector operations
+; AVX2 with VEX.128 encoding version
+; AVX cuts us some slack: the memory for load and operations  don't need to be 16B or 32B aligned 
 ; But I'm still making struct aligned (16B) 
 
 ; Vector from C++ perspective : else get ready for chaos
@@ -8,12 +8,15 @@
 ; struct alignas(16) Vec4{float x{},y{},z{},w{}}; 
 
 default rel
-
 %include "vector.inc"
 
 segment .text
 
-; void add(Vec3& dest,Ve3& u,Vec3& v) 
+;///////////////////////////////////////////////////////////////////////////////////////////////
+;                                        Vector3                                               /
+;///////////////////////////////////////////////////////////////////////////////////////////////
+
+; void add([rcx]=Vec3* dest,[rdx]=Ve3* u,[r8]=Vec3* v) 
 Vec3_add:
  vmovaps xmm0,[rdx]
  vmovaps xmm1,[r8]
@@ -21,43 +24,16 @@ Vec3_add:
  vmovaps [rcx],xmm0 
  ret 
 
-; void add(Vec4& dest, Vec4& u,Vec4& v)
-Vec4_add:
-  vmovaps xmm0,[rdx]
-  vaddps xmm0,xmm0,[r8] 
-  vmovaps [rcx],xmm0 
-  ret 
 
- ; void scale(Vec3& dest, Vec3& u,float scale)
-Vec3_scale:
-  vmovups xmm0,[rcx]
-  vbroadcastss xmm1,xmm1 
-  vmulps xmm0,xmm0,xmm1
-  vmovaps [rcx],xmm0 
-  ret
-
-; void scale(Vec4& dest, Vec4& u,float scale)
-Vec4_scale:
-  vmovaps xmm0,[rcx]
-  vbroadcastss xmm1,xmm1 
-  vmulps xmm0,xmm0,xmm1
-  vmovaps [rcx],xmm0 
-  ret 
-
-; float dot(Vec3& u,Vec3& v)
+; float dot([rcx]=Vec3* u,[rdx]=Vec3* v)
 Vec3_dot:
   vmovaps xmm0,[rcx]
   vmovaps xmm1,[rdx]
   vdpps xmm0,xmm0,xmm1,0x71   ; 0b0111_0001 , Dot product of 3 lanes and store result in xmm0's lane 0 
   ret 
 
-; float dot(Vec4& u,Vec4& v)
-Vec4_dot:
-  vmovaps xmm0,[rcx]
-  vdpps xmm0,xmm0,[rdx],0xF1  ; 0b1111_0001 ; Dot product all lanes and store result in xmm0's lane 0 
-  ret 
   
-; void cross(Vec3& dest,Vec3& u,Vec3& v)
+; void cross([rcx]=Vec3* dest,[rdx]=Vec3* u,[r8]=Vec3* v)
 cross_product:
   vmovaps xmm1,[rdx]        
   vmovaps xmm2,[r8]
@@ -72,7 +48,26 @@ cross_product:
   vmovaps [rcx],xmm0 
   ret 
 
- ; void reflect(Vec3& ref,Vec3& V,Vec3& N)
+ 
+; void normalize([rcx]=Vec3* dest,Vec3* V)
+ Vec3_normalize:
+  vmovaps xmm0,[rdx] 
+  vdpps xmm1,xmm0,xmm0,0xF1      ; dot(V,V)=||V||^2 
+
+  vxorps xmm2,xmm2,xmm2 
+  vcomiss xmm1,xmm2 
+  je .zero
+
+  vrsqrtss xmm1,xmm1,xmm1   ; 1 / mag 
+  vbroadcastss xmm1,xmm1 
+  vmulps xmm2,xmm0,xmm1     ; Normalize if len != 0 
+
+.zero:
+  vmovaps [rcx],xmm2 
+  ret 
+
+   
+ ; void reflect([rcx]=Vec3* ref,[rdx]=Vec3* V,[r8]=Vec3* N)
  ; ref = V - 2(V ⋅N)N
  Vec3_reflect:
   vmovaps xmm1,[rdx]
@@ -85,7 +80,7 @@ cross_product:
   ret 
   
 
-; void refract(rcx=Vec3& dest,rdx=Vec3& I,r8=Vec3& N,xmm3=float eta)
+; void refract([rcx]=Vec3* dest,[rdx]=Vec3* I,[r8]=Vec3* N,xmm3=float eta)
 ; T = nI-(n(dot(I,N)+sqrt(k))N 
   Vec3_refract:
     vmovaps xmm2,[rdx]        ; xmm2 = Incident ray (I)
@@ -115,25 +110,44 @@ cross_product:
    vmovaps [rcx],xmm0  
    ret 
 
-  .tir:
-    vxorps xmm0,xmm0,xmm0
-    vmovaps [rcx],xmm0 
-    ret 
+.tir:
+  vxorps xmm0,xmm0,xmm0
+  vmovaps [rcx],xmm0 
+  ret 
 
 
-; void normalize(Vec3& dest,Vec3& V)
-Vec3_normalize:
-  vmovaps xmm0,[rdx] 
-  vdpps xmm1,xmm0,xmm0,0xF1      ; dot(V,V)=||V||^2 
-
-  vxorps xmm2,xmm2,xmm2 
-  vcomiss xmm1,xmm2 
-  je .zero
-
-  vrsqrtss xmm1,xmm1,xmm1   ; 1 / mag 
+ ; void scale([rcx]=Vec3* dest,xmm1=float scale,[r8]=Vec* v)
+ Vec3_scale:
+  vmovups xmm0,[r8]
   vbroadcastss xmm1,xmm1 
-  vmulps xmm2,xmm0,xmm1     ; Normalize if len != 0 
+  vmulps xmm0,xmm0,xmm1
+  vmovaps [rcx],xmm0 
+  ret
 
-.zero:
-  vmovaps [rcx],xmm2 
+ ;/////////////////////////////////////////////////////////////////////////////////////////////
+ ;/                           Vector4                                                         /
+ ;////////////////////////////////////////////////////////////////////////////////////////////
+
+
+; void add([rcx]=Vec4* dest, [rdx]=Vec4* u,[r8]=Vec4* v)
+Vec4_add:
+  vmovaps xmm0,[rdx]
+  vaddps xmm0,xmm0,[r8] 
+  vmovaps [rcx],xmm0 
+  ret
+
+
+; float dot([rcx]=Vec4* u,[r8]=Vec4* v)
+Vec4_dot:
+  vmovaps xmm0,[rcx]
+  vdpps xmm0,xmm0,[rdx],0xF1  ; 0b1111_0001 ; Dot product all lanes and store result in xmm0's lane 0 
+  ret 
+
+
+; void scale([rcx]=Vec4* dest, xmm1=float scale,[r8]=Vec4* v)
+Vec4_scale:
+  vmovaps xmm0,[r8]
+  vbroadcastss xmm1,xmm1 
+  vmulps xmm0,xmm0,xmm1
+  vmovaps [rcx],xmm0 
   ret 
