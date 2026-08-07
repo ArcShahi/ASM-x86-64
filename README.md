@@ -22,7 +22,7 @@ I use my custom [PowerShell script](https://gist.github.com/ArcShahi/eb3bbc05681
 
 **Use it only if you're learning or testing assembly**.
 ```cpp
-// Include a header with function defintions
+// Include a header with function defintions and C calling convention
 extern "C" Vec3_add(Vec3* dest,Vec3* u,Vec3* v);
 // ... and so on
 
