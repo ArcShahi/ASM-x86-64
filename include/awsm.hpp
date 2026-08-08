@@ -1,5 +1,7 @@
-#ifdef AWSM_HPP
+#ifndef AWSM_HPP
 #define AWSM_HPP
+
+// Sample header 
 
 namespace awsm {
 
@@ -23,8 +25,9 @@ struct Mat4x4 {
   Vec4 r[4]{};  
 };
 
-// TODO : Add function forward delclaration
-
 }
+
+
+// TODO : Add function forward delclaration , can't put them inside namespace ,
 
 #endif 
