@@ -22,7 +22,7 @@ export vec3_normalize
 export vec3_reflect
 export vec3_refract
 export vec3_sub
-exprot vec4_sub
+export vec4_sub
 export vec4_scale
 export vec3_dot
 export vec4_dot

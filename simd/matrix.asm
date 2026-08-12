@@ -100,7 +100,7 @@ mat3x3_mul_vec3:
 
 mat3x3_sub:
   vmovups ymm1,[rdx]
-  vsubps ymm0,ymm1,[r8]     ; Add first 2 rows 
+  vsubps ymm0,ymm1,[r8]     ; Sub first 2 rows 
   vmovups [rcx],ymm0 
 
   vmovups xmm1,[rdx+0x20]
