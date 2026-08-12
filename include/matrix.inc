@@ -22,7 +22,7 @@ export mat3x3_scale
 
 export mat4x4_add
 export mat4x4_mul_mat4x4
-export mat4x4_mul_mat4x1
+export mat4x4_mul_vec4
 export mat4x4_scale
 
 %endif
