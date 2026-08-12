@@ -21,7 +21,7 @@ mat3x3_add:
   vmovups [rcx],ymm0 
 
   vmovups xmm1,[rdx+0x20]
-  vaddps xmm0,xmm1,[rd+0x20]
+  vaddps xmm0,xmm1,[r8+0x20]
   vmovups [rcx+0x20],xmm0
   ret
 
@@ -42,7 +42,7 @@ mat3x3_mul_mat3x3:
   
   vdpps xmm3,xmm0,xmm1,0xF1   ; xmm3[0]= xmm0 dot xmm1 = A's r0 dot B's r0 
   vdpps xmm4,xmm0,xmm4,0xF1   ; xmm4[0]= xmm0 dot xmm4 = A's r0 dot B's r1 
-  vddps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r0 dot B's r2
+  vdpps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r0 dot B's r2
 
   ; Pack the results back to xmm0 
   vinsertps xmm0,xmm0,xmm3,0x00 ; xmm0[0]=xmm3[0]
@@ -56,7 +56,7 @@ mat3x3_mul_mat3x3:
   
   vdpps xmm3,xmm0,xmm1,0xF1   ; xmm3[0]= xmm0 dot xmm1 = A's r1 dot B's r0 
   vdpps xmm4,xmm0,xmm4,0xF1   ; xmm4[0]= xmm0 dot xmm4 = A's r1 dot B's r1 
-  vddps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r1 dot B's r2
+  vdpps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r1 dot B's r2
 
   ; Pack the results back to xmm0 
   vinsertps xmm0,xmm0,xmm3,0x00 ; xmm0[0]=xmm3[0]
@@ -70,7 +70,7 @@ mat3x3_mul_mat3x3:
   
   vdpps xmm3,xmm0,xmm1,0xF1   ; xmm3[0]= xmm0 dot xmm1 = A's r2 dot B's r0 
   vdpps xmm4,xmm0,xmm4,0xF1   ; xmm4[0]= xmm0 dot xmm4 = A's r2 dot B's r1 
-  vddps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r2 dot B's r2
+  vdpps xmm5,xmm0,xmm2,0xF1   ; xmm4[0]= xmm0 dot xmm2 = A's r2 dot B's r2
 
   ; Pack the results back to xmm0 
   vinsertps xmm0,xmm0,xmm3,0x00 ; xmm0[0]=xmm3[0]
