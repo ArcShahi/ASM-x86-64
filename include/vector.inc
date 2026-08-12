@@ -2,27 +2,31 @@
 %define VECTOR_INC
 
 ; Make them visisble to linker
-global Vec3_add
-global Vec4_add 
-global Vec3_normalize
-global Vec3_reflect
-global Vec3_refract
-global Vec3_scale 
-global Vec4_scale 
-global Vec3_dot 
-global Vec4_dot
+global vec3_add
+global vec4_add 
+global vec3_normalize
+global vec3_reflect
+global vec3_refract
+global vec3_sub
+global vec4_sub
+global vec3_scale 
+global vec4_scale 
+global vec3_dot 
+global vec4_dot
 global cross_product
 
 ; Tell linker to include it into symbol export table
-export Vec3_add
-export Vec3_scale
-export Vec3_normalize
-export Vec3_reflect
-export Vec3_refract
-export Vec4_scale
-export Vec3_dot
-export Vec4_dot
-export Vec4_add
+export vec3_add
+export vec3_scale
+export vec3_normalize
+export vec3_reflect
+export vec3_refract
+export vec3_sub
+exprot vec4_sub
+export vec4_scale
+export vec3_dot
+export vec4_dot
+export vec4_add
 export cross_product
 
 %endif 

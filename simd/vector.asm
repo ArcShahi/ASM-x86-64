@@ -4,8 +4,8 @@
 ; But I'm still making struct aligned (16B) 
 
 ; Vector from C++ perspective : else get ready for chaos
-; struct alignas(16) Vec3{float x{},y{},z{}};  The compiler will add 4B padding
-; struct alignas(16) Vec4{float x{},y{},z{},w{}}; 
+; struct alignas(16) vec3{float x{},y{},z{}};  The compiler will add 4B padding
+; struct alignas(16) vec4{float x{},y{},z{},w{}}; 
 
 default rel
 %include "vector.inc"
@@ -16,8 +16,8 @@ segment .text
 ;                                        Vector3                                               /
 ;///////////////////////////////////////////////////////////////////////////////////////////////
 
-; void add([rcx]=Vec3* dest,[rdx]=Ve3* u,[r8]=Vec3* v) 
-Vec3_add:
+; void add([rcx]=vec3* dest,[rdx]=vec3* u,[r8]=vec3* v) 
+vec3_add:
  vmovaps xmm0,[rdx]
  vmovaps xmm1,[r8]
  vaddps xmm0,xmm0,xmm1 
@@ -25,8 +25,8 @@ Vec3_add:
  ret 
 
 
-; float dot([rcx]=Vec3* u,[rdx]=Vec3* v)
-Vec3_dot:
+; float dot([rcx]=vec3* u,[rdx]=Vec3* v)
+vec3_dot:
   vmovaps xmm0,[rcx]
   vmovaps xmm1,[rdx]
   vdpps xmm0,xmm0,xmm1,0x71   ; 0b0111_0001 , Dot product of 3 lanes and store result in xmm0's lane 0 
@@ -49,8 +49,8 @@ cross_product:
   ret 
 
  
-; void normalize([rcx]=Vec3* dest,Vec3* V)
- Vec3_normalize:
+; void normalize([rcx]=vec3* dest,vec3* V)
+ vec3_normalize:
   vmovaps xmm0,[rdx] 
   vdpps xmm1,xmm0,xmm0,0xF1      ; dot(V,V)=||V||^2 
 
@@ -67,11 +67,11 @@ cross_product:
   ret 
 
    
- ; void reflect([rcx]=Vec3* ref,[rdx]=Vec3* V,[r8]=Vec3* N)
+ ; void reflect([rcx]=vec3* ref,[rdx]=vec3* V,[r8]=vec3* N)
  ; ref = V - 2(V ⋅N)N
- Vec3_reflect:
+ vec3_reflect:
   vmovaps xmm1,[rdx]
-  vdpps xmm0,xmm1,[r8],0xF1  ; xmm0=dp :  0b1111_0001 : dot(V,N) in lane 0 
+  vdpps xmm0,xmm1,[r8],0xF1   ; xmm0=dp :  0b1111_0001 : dot(V,N) in lane 0 
   vaddss xmm0,xmm0,xmm0       ; dp*dp 
   vbroadcastss xmm0,xmm0      ; [2dp | 2dp | 2dp | 2dp]
   vmulps xmm0,xmm0,[r8]       ; Scaling the normal by 2DP
@@ -80,9 +80,9 @@ cross_product:
   ret 
   
 
-; void refract([rcx]=Vec3* dest,[rdx]=Vec3* I,[r8]=Vec3* N,xmm3=float eta)
+; void refract([rcx]=vec3* dest,[rdx]=vec3* I,[r8]=vec3* N,xmm3=float eta)
 ; T = nI-(n(dot(I,N)+sqrt(k))N 
-  Vec3_refract:
+  vec3_refract:
     vmovaps xmm2,[rdx]        ; xmm2 = Incident ray (I)
     mov eax,0x3f800000        ; IEEE-754 ecoding for : 1.0 
     vmovd xmm1,eax            ; xmm1 = 1.0 
@@ -116,8 +116,17 @@ cross_product:
   ret 
 
 
- ; void scale([rcx]=Vec3* dest,xmm1=float scale,[r8]=Vec* v)
- Vec3_scale:
+ ; void sub([rcx]=vec3* dest,[rdx]=vec3* u,[r8]=vec3* v) 
+ vec3_sub:
+  vmovaps xmm0,[rdx]
+  vmovaps xmm1,[r8]
+  vsubps xmm0,xmm0,xmm1 
+  vmovaps [rcx],xmm0 
+  ret 
+
+
+ ; void scale([rcx]=vec3* dest,xmm1=float scale,[r8]=vec3* v)
+ vec3_scale:
   vmovups xmm0,[r8]
   vbroadcastss xmm1,xmm1 
   vmulps xmm0,xmm0,xmm1
@@ -129,23 +138,31 @@ cross_product:
  ;////////////////////////////////////////////////////////////////////////////////////////////
 
 
-; void add([rcx]=Vec4* dest, [rdx]=Vec4* u,[r8]=Vec4* v)
-Vec4_add:
+; void add([rcx]=vec4* dest, [rdx]=vec4* u,[r8]=vec4* v)
+vec4_add:
   vmovaps xmm0,[rdx]
   vaddps xmm0,xmm0,[r8] 
   vmovaps [rcx],xmm0 
   ret
 
 
-; float dot([rcx]=Vec4* u,[r8]=Vec4* v)
-Vec4_dot:
+; float dot([rcx]=vec4* u,[r8]=vec4* v)
+vec4_dot:
   vmovaps xmm0,[rcx]
   vdpps xmm0,xmm0,[rdx],0xF1  ; 0b1111_0001 ; Dot product all lanes and store result in xmm0's lane 0 
   ret 
 
+ 
+ ; void sub([rcx]=vec4* dest, [rdx]=vec4* u,[r8]=vec4* v)
+vec4_sub:
+  vmovaps xmm0,[rdx]
+  vsubps xmm0,xmm0,[r8] 
+  vmovaps [rcx],xmm0 
+  ret
 
-; void scale([rcx]=Vec4* dest, xmm1=float scale,[r8]=Vec4* v)
-Vec4_scale:
+
+; void scale([rcx]=vec4* dest, xmm1=float scale,[r8]=vec4* v)
+vec4_scale:
   vmovaps xmm0,[r8]
   vbroadcastss xmm1,xmm1 
   vmulps xmm0,xmm0,xmm1
