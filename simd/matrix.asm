@@ -93,7 +93,20 @@ mat3x3_mul_vec3:
   vdpps xmm0,xmm4,xmm3,0xF2     ; xmm0[63:32]=[r1 dot v]
   vdpps xmm0,xmm2,xmm3,0xF4     ; xmm0[95:64]=[r2 dot v]
   vmovups [rcx],xmm0            ; Write back result 
-  ret 
+  ret
+
+  
+; void sub([rcx]=Mat3x3* dest, [rdx]=Mat3x3* M1, [r8]=Mat3x3* M2);
+
+mat3x3_sub:
+  vmovups ymm1,[rdx]
+  vsubps ymm0,ymm1,[r8]     ; Add first 2 rows 
+  vmovups [rcx],ymm0 
+
+  vmovups xmm1,[rdx+0x20]
+  vsubps xmm0,xmm1,[r8+0x20]
+  vmovups [rcx+0x20],xmm0
+  ret
 
 ; void scale([rcx]=Mat3x3* dest,xmm1=float f,[r8]=Mat3x3 vec);
 ; dest = f*vec
@@ -184,6 +197,20 @@ mat4x4_mul_vec4:
   vdpps xmm0,xmm1,xmm2,0xF8       ; xmm0 [127:96] = [r3 dot v]
   vmovups [rcx],xmm0              ; Write back result 
   ret 
+
+ 
+; void mat4x4_sub([rcx]=Mat4x4& dest,[rcx]=Mat4x4& a,[r8=Mat4x4& b);
+; dest= a-b
+
+mat4x4_sub:
+  vmovups ymm1,[rdx]
+  vsubps ymm0,ymm1,[r8]
+  vmovups [rcx],ymm0 
+
+  vmovups ymm1,[rdx+0x20]
+  vsubps  ymm0,ymm1,[r8+0x20]
+  vmovups [rcx+0x20],ymm0 
+  ret
 
 
 ;void mat4x4_scale([rcx]=Mat4x4* dest, xmm1=float f,[r8]=Matt4x4* v)
