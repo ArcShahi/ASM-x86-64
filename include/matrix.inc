@@ -18,7 +18,7 @@ global mat4x4_scale
 export mat3x3_add
 export mat3x3_mul_mat3x3
 export mat3x3_mul_vec3
-exprot mat3x3_scale 
+export mat3x3_scale 
 
 export mat4x4_add
 export mat4x4_mul_mat4x4
