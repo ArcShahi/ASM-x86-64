@@ -15,7 +15,7 @@ segment .text
 
 ; void add([rcx]=Mat3x3* dest, [rdx]=Mat3x3* M1, [r8]=Mat3x3* M2);
 
-mat3x3_add:
+mat3_add:
   vmovups ymm1,[rdx]
   vaddps ymm0,ymm1,[r8]     ; Add first 2 rows 
   vmovups [rcx],ymm0 
@@ -30,7 +30,7 @@ mat3x3_add:
 ; ASSUMING : Either A or B is Transposed -> dest= A*B^(-1) or dest= A^(-1)*B 
 ; Unrolled Loop 
 
-mat3x3_mul_mat3x3:
+mat3_mul_mat3:
   
   ; Load r0,r1 of B then r2 
   vmovups ymm1,[r8]           ; ymm0[127:0]= B's r0
@@ -83,10 +83,10 @@ mat3x3_mul_mat3x3:
 ; void mul_vec3([rcx]=Vec3* dest,[rdx]=Mat3x3* M,[r8]=Vec3* v);
 ; dest = Mv
 
-mat3x3_mul_vec3:
-  vmovups ymm1,[rdx]      ; load 2 rows from M : r0 , r1 
-  vmovups xmm2,[rdx+0x20] ; load last row : r2 
-  vmovaps xmm3,[r8]       ; Loading entire Vec3 or Mat3x1 at once 
+mat3_mul_vec3:
+  vmovups ymm1,[rdx]            ; load 2 rows from M : r0 , r1 
+  vmovups xmm2,[rdx+0x20]       ; load last row : r2 
+  vmovaps xmm3,[r8]             ; Loading entire Vec3 or Mat3x1 at once 
 
   vdpps xmm0,xmm1,xmm3,0xF1     ; xmm0[31:0]=[r0 dot v]
   vextractf128 xmm4,ymm1,0x01   ; pull r1 from ymm1[255:128] to xmm4 
@@ -98,7 +98,7 @@ mat3x3_mul_vec3:
   
 ; void sub([rcx]=Mat3x3* dest, [rdx]=Mat3x3* M1, [r8]=Mat3x3* M2);
 
-mat3x3_sub:
+mat3_sub:
   vmovups ymm1,[rdx]
   vsubps ymm0,ymm1,[r8]     ; Sub first 2 rows 
   vmovups [rcx],ymm0 
@@ -111,7 +111,7 @@ mat3x3_sub:
 ; void scale([rcx]=Mat3x3* dest,xmm1=float f,[r8]=Mat3x3 vec);
 ; dest = f*vec
           
-mat3x3_scale:
+mat3_scale:
   vbroadcastss ymm1,xmm1 
   vmulps ymm0,ymm1,[r8] 
   vmovups [rcx],ymm0
@@ -129,7 +129,7 @@ mat3x3_scale:
 ; void mat4x4_add([rcx]=Mat4x4& dest,[rcx]=Mat4x4& a,[r8=Mat4x4& b);
 ; dest= a+b 
 
-mat4x4_add:
+mat4_add:
   vmovups ymm1,[rdx]
   vaddps ymm0,ymm1,[r8]
   vmovups [rcx],ymm0 
@@ -142,7 +142,7 @@ mat4x4_add:
 
  ; void multiply([rcx]=Mat4x4* dest,[rdx]=Mat4x4* A,[r8]=Mat4x4* B)
  ; Assuming one of the matrices are Transposed 
-mat4x4_mul_mat4x4:
+mat4_mul_mat4x4:
  
   ; Pushing ymm6 on stack 
   sub rsp,0x20
@@ -182,7 +182,7 @@ mat4x4_mul_mat4x4:
 ; void mul_vec4([rcx]=Vec4* dest,[rdx]=Mat4x4* M,[r8]=Vec4* v)
 ; the 4x1 matrix or 1x4 matrix is just Vec4 , just the representation changes
 
-mat4x4_mul_vec4:
+mat4_mul_vec4:
   
   vmovups ymm1,[rdx]              ; load 2 rows : r0 r1 
   vmovups ymm2,[rdx+0x20]         ; load r2,r3 
@@ -202,7 +202,7 @@ mat4x4_mul_vec4:
 ; void mat4x4_sub([rcx]=Mat4x4& dest,[rcx]=Mat4x4& a,[r8=Mat4x4& b);
 ; dest= a-b
 
-mat4x4_sub:
+mat4_sub:
   vmovups ymm1,[rdx]
   vsubps ymm0,ymm1,[r8]
   vmovups [rcx],ymm0 
@@ -215,7 +215,7 @@ mat4x4_sub:
 
 ;void mat4x4_scale([rcx]=Mat4x4* dest, xmm1=float f,[r8]=Matt4x4* v)
 ; dest=f*v
-mat4x4_scale:
+mat4_scale:
   
   vbroadcastss ymm1,xmm1 
   vmulps ymm0,ymm1,[r8]
