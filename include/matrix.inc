@@ -10,10 +10,10 @@ global mat3_sub
 global mat3_scale
 
 global mat4_add
-global mat4_mul_ve4
+global mat4_mul_vec4
 global mat4_mul_mat4
 global mat4_sub
-global mat4x4_scale
+global mat4_scale
 
 ;Export symbol for linker to include in symbol export table
 
