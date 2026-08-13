@@ -88,11 +88,15 @@ mat3_mul_vec3:
   vmovups xmm2,[rdx+0x20]       ; load last row : r2 
   vmovaps xmm3,[r8]             ; Loading entire Vec3 or Mat3x1 at once 
 
-  vdpps xmm0,xmm1,xmm3,0xF1     ; xmm0[31:0]=[r0 dot v]
-  vextractf128 xmm4,ymm1,0x01   ; pull r1 from ymm1[255:128] to xmm4 
-  vdpps xmm0,xmm4,xmm3,0xF2     ; xmm0[63:32]=[r1 dot v]
-  vdpps xmm0,xmm2,xmm3,0xF4     ; xmm0[95:64]=[r2 dot v]
-  vmovups [rcx],xmm0            ; Write back result 
+  vdpps xmm0,xmm1,xmm3,0xF1     ; xmm0[31:0]=[r0 dot v] = x
+  vextractf128 xmm1,ymm1,0x01   ; pull r1 from ymm1[255:128] to xmm1[127:0] 
+  vdpps xmm1,xmm1,xmm3,0xF1     ; xmm1[0]=[r1 dot v] = y
+  vdpps xmm4,xmm2,xmm3,0xF1     ; xmm4[0]=[r2 dot v] = z
+ 
+; Pack the result into xmm0
+  vinsertps xmm0,xmm0,xmm1,0x10  ; xmm0[1]= y
+  vinsertps xmm0,xmm0,xmm4,0x20  ; xmm0[2]= z
+  vmovups [rcx],xmm0             ; Write back result 
   ret
 
   
@@ -140,9 +144,10 @@ mat4_add:
   ret
 
 
- ; void multiply([rcx]=Mat4x4* dest,[rdx]=Mat4x4* A,[r8]=Mat4x4* B)
- ; Assuming one of the matrices are Transposed 
-mat4_mul_mat4x4:
+; void multiply([rcx]=Mat4x4* dest,[rdx]=Mat4x4* A,[r8]=Mat4x4* B)
+; Assuming one of the matrices are Transposed 
+
+mat4_mul_mat4:
  
   ; Pushing ymm6 on stack 
   sub rsp,0x20
@@ -184,17 +189,22 @@ mat4_mul_mat4x4:
 
 mat4_mul_vec4:
   
-  vmovups ymm1,[rdx]              ; load 2 rows : r0 r1 
+  vmovups ymm1,[rdx]              ; load 2 rows : r0,r1 
   vmovups ymm2,[rdx+0x20]         ; load r2,r3 
   vmovaps xmm3,[r8]               ; Entire vec4 or mat4x1 loaded at once
 
-  vdpps xmm0,xmm1,xmm3,0xF1       ; xmm0 [31:0]  = [r0 dot v]
-  vextractf128 xmm4,ymm1,0x01     ; pull r1 from ymm1[255:128] to xmm4
-  vdpps xmm0,xmm4,xmm3,0xF2       ; xmm0 [63:32] = [r1 dot v]
-  vdpps xmm0,xmm2,xmm3,0xF4       ; xmm0 [95:64] = [r2 dot v]
+  vdpps xmm0,xmm1,xmm3,0xF1       ; xmm0[0]  = [r0 dot v] = x
+  vextractf128 xmm1,ymm1,0x01     ; pull r1 from ymm1[255:128] to xmm1[127:0]
+  vdpps xmm1,xmm1,xmm3,0xF1       ; xmm1[0] = [r1 dot v]  = y
+  vdpps xmm4,xmm2,xmm3,0xF1       ; xmm4[0] = [r2 dot v]  = z
+  vextractf128 xmm1,ymm2,0x01     ; pull r3 from ymm2[255:128] to xmm1[127:0] 
+  vdpps xmm2,xmm1,xmm3,0xF1       ; xmm2[0]= [r3 dot v] w
 
-  vextractf128 xmm4,ymm2,0x01     ; pull r3 from ymm2[255:128] to xmm4 
-  vdpps xmm0,xmm1,xmm2,0xF8       ; xmm0 [127:96] = [r3 dot v]
+; Pacing the result back 
+  vinsertps xmm0,xmm0,xmm1,0x10  ; xmm0[1]= y 
+  vinsertps xmm0,xmm0,xmm4,0x20  ; xmm0[2]= z 
+  vinsertps xmm0,xmm0,xmm2,0x30  ; xmm0[3]= w 
+
   vmovups [rcx],xmm0              ; Write back result 
   ret 
 
@@ -215,6 +225,7 @@ mat4_sub:
 
 ;void mat4x4_scale([rcx]=Mat4x4* dest, xmm1=float f,[r8]=Matt4x4* v)
 ; dest=f*v
+
 mat4_scale:
   
   vbroadcastss ymm1,xmm1 
