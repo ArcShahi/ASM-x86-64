@@ -23,6 +23,7 @@ mat3_add:
   vmovups xmm1,[rdx+0x20]
   vaddps xmm0,xmm1,[r8+0x20]
   vmovups [rcx+0x20],xmm0
+  vzeroupper
   ret
 
    
@@ -77,6 +78,7 @@ mat3_mul_mat3:
   vinsertps xmm0,xmm0,xmm4,0x10 ; xmm0[1]=xmm4[0]
   vinsertps xmm0,xmm0,xmm5,0x20 ; xmm0[2]=xmm5[0]
   vmovups [rcx+0x20],xmm0
+  vzeroupper
   ret 
 
 
@@ -97,6 +99,7 @@ mat3_mul_vec3:
   vinsertps xmm0,xmm0,xmm1,0x10  ; xmm0[1]= y
   vinsertps xmm0,xmm0,xmm4,0x20  ; xmm0[2]= z
   vmovups [rcx],xmm0             ; Write back result 
+  vzeroupper
   ret
 
   
@@ -110,6 +113,7 @@ mat3_sub:
   vmovups xmm1,[rdx+0x20]
   vsubps xmm0,xmm1,[r8+0x20]
   vmovups [rcx+0x20],xmm0
+  vzeroupper
   ret
 
 ; void scale([rcx]=Mat3x3* dest,xmm1=float f,[r8]=Mat3x3 vec);
@@ -122,6 +126,7 @@ mat3_scale:
 
   vmulps xmm0,xmm1,[r8+0x20]    ; load last row 
   vmovups [rcx+0x20],xmm0       ; write to dest 
+  vzeroupper
   ret 
 
 
@@ -141,6 +146,7 @@ mat4_add:
   vmovups ymm1,[rdx+0x20]
   vaddps  ymm0,ymm1,[r8+0x20]
   vmovups [rcx+0x20],ymm0 
+  vzeroupper
   ret
 
 
@@ -182,6 +188,7 @@ mat4_mul_mat4:
 
   vmovups ymm6,[rsp]
   add rsp,0x20
+  vzeroupper
   ret 
 
 ; void mul_vec4([rcx]=Vec4* dest,[rdx]=Mat4x4* M,[r8]=Vec4* v)
@@ -206,6 +213,7 @@ mat4_mul_vec4:
   vinsertps xmm0,xmm0,xmm2,0x30  ; xmm0[3]= w 
 
   vmovups [rcx],xmm0              ; Write back result 
+  vzeroupper
   ret 
 
  
@@ -220,6 +228,7 @@ mat4_sub:
   vmovups ymm1,[rdx+0x20]
   vsubps  ymm0,ymm1,[r8+0x20]
   vmovups [rcx+0x20],ymm0 
+  vzeroupper
   ret
 
 
@@ -234,4 +243,5 @@ mat4_scale:
 
   vmulps ymm0,ymm1,[r8+0x20]
   vmovups [rcx+0x20],ymm0 
+  vzeroupper
   ret 
