@@ -49,6 +49,10 @@ namespace awsm {
 	// vec3 refract : r
 	void vec3_refract(awsm::vec3& dest, awsm::vec3& incident, awsm::vec3& normal, float eta) noexcept;
 
+	// Rotate a vector : Trait-Brian angles(radian) z,y,x
+	[[deprecated("Fix required: Access violation")]]
+	void rotate(awsm::vec3& dest, awsm::vec3& v, awsm::vec3& angles) noexcept;
+
 	// vec3 subtraction
 	void vec3_sub(awsm::vec3& dest, awsm::vec3& v, awsm::vec3& u) noexcept;
 
@@ -80,13 +84,39 @@ namespace awsm {
 
 
 	// Mat3x3 Addition : dest = m1 + m2;
-	void mat3_add(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2);
+	void mat3_add(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
 
 	// Matrix Multiplication : dest = m1 x traspose(m2)  -> One of those matrices must be transposed first
 	void mat3_mul_mat3(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
 
 	// Mat3x3 multiplied by Vec3(Mat3x1)
-	void mat3_mul_vec3(awsm::vec3& dest, awsm::mat3& matrix, awsm::vec3& vector) noexcept;
+	void mat3_mul_vec3(awsm::vec3& dest, awsm::mat3& matrix, awsm::vec3& vec) noexcept;
+
+	void mat3_scale(awsm::mat3& dest, float s, awsm::mat3& m) noexcept;
+
+	// Mat3x3 Subtract : dest=m1-m2;
+	void mat3_sub(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
+
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//                              mat4x4 operations                                                      //
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Mat4x4 Addition : dest = m1 + m2;
+	void mat4_add(awsm::mat4& dest, awsm::mat4& m1, awsm::mat4& m2) noexcept;
+
+	// Matrix Multiplication : dest = m1 x traspose(m2)  -> One of those matrices must be transposed first
+	void mat4_mul_mat3(awsm::mat4& dest, awsm::mat3& m1, awsm::mat4& m2) noexcept;
+
+	// Mat4x4 multiplied by Vec3(Mat3x1)
+	void mat4_mul_vec3(awsm::vec4& dest, awsm::mat4& matrix, awsm::vec4& vec) noexcept;
+
+	// Scale a matrix by factor of 's'
+	void mat4_scale(awsm::mat4& dest, float s, awsm::mat4& m) noexcept;
+
+	// Mat4x4 Subtract : dest=m1-m2;
+	void mat4_sub(awsm::mat4& dest, awsm::mat4& m1, awsm::mat4& m2) noexcept;
 	}
 
 
