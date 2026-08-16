@@ -43,4 +43,5 @@ accumulate:
   jb .loop2 
 
 .done:
+  vzeroupper
   ret 

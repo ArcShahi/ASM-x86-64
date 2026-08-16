@@ -49,5 +49,6 @@ array_dp:
 .done:
   pop rdi
   pop rsi 
+  vzeroupper
   ret 
   

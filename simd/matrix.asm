@@ -78,7 +78,6 @@ mat3_mul_mat3:
   vinsertps xmm0,xmm0,xmm4,0x10 ; xmm0[1]=xmm4[0]
   vinsertps xmm0,xmm0,xmm5,0x20 ; xmm0[2]=xmm5[0]
   vmovups [rcx+0x20],xmm0
-  vzeroupper
   ret 
 
 
