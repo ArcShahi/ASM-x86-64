@@ -68,10 +68,10 @@ namespace awsm {
 	void vec4_add(awsm::vec4& dest, awsm::vec4& v, awsm::vec4& u) noexcept;
 
 	// vec4 dot product
-	[[nodiscard]] float vec4_dot(awsm::vec4 v, awsm::vec4& u) noexcept;
+	[[nodiscard]] float vec4_dot(awsm::vec4& v, awsm::vec4& u) noexcept;
 
 	// vec4 subtraction
-	void vec4_sub(awsm::vec4& dest, awsm::vec4& v, awsm::vec4 u) noexcept;
+	void vec4_sub(awsm::vec4& dest, awsm::vec4& v, awsm::vec4& u) noexcept;
 
 	// vec4 scale : scale a vector by factor 's'
 	void vec4_scale(awsm::vec4& dest, float s, awsm::vec4& v) noexcept;
@@ -107,10 +107,10 @@ namespace awsm {
 	void mat4_add(awsm::mat4& dest, awsm::mat4& m1, awsm::mat4& m2) noexcept;
 
 	// Matrix Multiplication : dest = m1 x traspose(m2)  -> One of those matrices must be transposed first
-	void mat4_mul_mat3(awsm::mat4& dest, awsm::mat3& m1, awsm::mat4& m2) noexcept;
+	void mat4_mul_mat4(awsm::mat4& dest, awsm::mat4& m1, awsm::mat4& m2) noexcept;
 
 	// Mat4x4 multiplied by Vec3(Mat3x1)
-	void mat4_mul_vec3(awsm::vec4& dest, awsm::mat4& matrix, awsm::vec4& vec) noexcept;
+	void mat4_mul_vec4(awsm::vec4& dest, awsm::mat4& matrix, awsm::vec4& vec) noexcept;
 
 	// Scale a matrix by factor of 's'
 	void mat4_scale(awsm::mat4& dest, float s, awsm::mat4& m) noexcept;
