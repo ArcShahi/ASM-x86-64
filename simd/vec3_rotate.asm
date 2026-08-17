@@ -7,15 +7,15 @@ default rel
 %include "utils.mac"
 
 extern _CRT_INIT,cos,sin 
-global rotate
-export rotate
+global vec3_rotate
+export vec3_rotate
 
 segment .text
 
 ; Custom calling convention 
-; Vec3& Calculate xmm0=[Cos(alpha),Cos(beta),Cos(gamma),_]
+; Vec3& Calculate xmm0=[cos(gamma),cos(beta),cos(alpha)]
 
-CosABC:
+_cos_cba:
   push rbp 
   sub rsp,0x30 
   vmovdqa oword[rsp],xmm6 
@@ -23,15 +23,15 @@ CosABC:
   mov rbp,rcx                        ; rbp= &Vec3 
   vmovss xmm0,[rbp]
   call cos 
-  vinsertps xmm6,xmm6,xmm0,0x00      ; xmm6[0]= cos(alpha)
+  vinsertps xmm6,xmm6,xmm0,0x00      ; xmm6[0]= cos(c)
 
   vmovss xmm0,[rbp+0x04] 
   call cos 
-  vinsertps xmm6,xmm6,xmm0,0x10      ; xmm6[1]= cos(beta)
+  vinsertps xmm6,xmm6,xmm0,0x10      ; xmm6[1]= cos(b)
 
   vmovss xmm0,[rbp+0x08]
   call cos 
-  vinsertps xmm6,xmm6,xmm0,0x20      ; xmm6[2] = cos(gamma) 
+  vinsertps xmm6,xmm6,xmm0,0x20      ; xmm6[2]= cos(a) 
   
   vmovaps xmm0,xmm6  
   vmovdqa xmm6,oword[rsp]
@@ -40,23 +40,23 @@ CosABC:
   ret 
 
 
-SinABC:
+_sin_cba:
   push rbp 
   sub rsp,0x30 
-  vmovdqa oword[rsp],xmm6 
+  vmovdqa oword[rsp+0x20],xmm6 
 
   mov rbp,rcx                        ; rbp= &Vec3 
   vmovss xmm0,[rbp]
   call sin 
-  vinsertps xmm6,xmm6,xmm0,0x00      ; xmm6[0]= cos(alpha)
+  vinsertps xmm6,xmm6,xmm0,0x00      ; xmm6[0]= sin(c)
 
   vmovss xmm0,[rbp+0x04] 
   call sin  
-  vinsertps xmm6,xmm6,xmm0,0x10      ; xmm6[1]= cos(beta)
+  vinsertps xmm6,xmm6,xmm0,0x10      ; xmm6[1]= sin(b)
 
   vmovss xmm0,[rbp+0x08]
   call sin 
-  vinsertps xmm6,xmm6,xmm0,0x20      ; xmm6[2] = cos(gamma) 
+  vinsertps xmm6,xmm6,xmm0,0x20      ; xmm6[2]= sin(a) 
  
   vmovaps xmm0,xmm6 
   vmovdqa xmm6,oword[rsp]
@@ -65,112 +65,107 @@ SinABC:
   ret 
 
 
-; Tait-Brian angles in radians :(gamma,beta,alpha) around (z,y,x)
+; Tait-Brian angles in radians :(gamma,beta,alpha) around x,y,z
 ; void rotate([rcx]=Vec3* dest,[rdx]=Vec3* v,[r8]=Vec3* angles)
-rotate:
+vec3_rotate:
   ; Saving volatile registers in shadow space
   mov [rsp+0x08],rcx
   mov [rsp+0x10],rdx
   mov [rsp+0x18],r8 
 
   push rbp
-  sub rsp,0x70                    ; Shadow space 32B + 32 B for xmm5,xmm6 + 48B for local variables
-  vmovdqa oword[rsp+0x20],xmm5    ; Save xmm5 
-  vmovdqa oword[rsp+0x30],xmm6    ; Save xmm6 
+  sub rsp,0x50  ; 80B = 32B shadow + 40B local + 8 Padding 
 
-  mov rbp,r8                      ; rbp=&angles 
-  mov rcx,rbp   
-  call SinABC 
-  vmovdqa oword[rsp+0x34],xmm0    ; stk[0x34-0x40] =[Sa,Sb,Sc,_]
-
+  mov rbp,r8    ; rbp=&angles 
+  mov rcx,r8    
+  call _cos_cba 
+  vmovdqa oword[rsp+0x20],xmm0           ; Offset After shadow : stk[32B-43B]=cos[c,b,a]
+  
   mov rcx,rbp 
-  call CosABC 
-  vmovdqa oword[rsp+0x44],xmm0    ; stk[0x44-0x4c] =[Ca,Cb,Cc,_] 
+  call _sin_cba
+  vmovdqa oword[rsp+0x30],xmm0                ; stk [44B-55B] = sin[c,b,a]
 
-  ; Restore args 
-  mov rcx,[rsp+0x78]               ; Offset ; 112B 
-  mov rdx,[rsp+0x80]
-  mov r8, [rsp+0x88]
+  vmovd xmm0,dword[rsp+0x20]             ; xmm0= cos(c)
+  vmulss xmm0,xmm0,dword[rsp+0x28]       
+  vmovd [rsp+0x38],xmm0                  ; rsp+56 = cos(c)cos(a)
 
-  vmovd xmm0,[rsp+0x34]            ; xmm0=Cos(a)
-  vmulss xmm1,xmm0,[rsp+0x48]      ; Cos(a)* Sin(a) 
-  vmovd [rsp+0x50],xmm1            ; stk[rsp+0x50]= Con(a)*Sin(a)
-  vmulss xmm0,xmm0,[rsp+0x40]           ; Cos(a)*Cos(c)
-  vmovd [rsp+0x58],xmm0            ; stk[rsp+0x58]= Cos(a)*Cos(c) 
+  vmovd xmm1,dword[rsp+0x30]             ; xmm1=sin(b) 
+  vmulss xmm0,xmm1,dword[rsp+0x34]
+  vmovd [rsp+0x3C],xmm0                  ; rsp+60= sin(b)sin(a)
 
-  vmovss xmm0,[rsp+0x44]           ; xmm0= Sin(a) 
-  vmulss xmm0,xmm0,[rsp+0x48]           ; xmm0=Sin(a)*Sin(b)
-  vmovd [rsp+0x54],xmm0            ; stk[rsp+0x54]= Sin(a)*Sin(b) 
+  vmovd xmm0,dword[rsp+0x28]             ; xmm0=cos(a)
+  vmulss xmm0,xmm0,xmm1                  ; xmm0=cos(a)*sin(b)
+  vmovd [rsp+0x40],xmm0                  ; rsp+64 = cos(a)*sin(b)
 
 
-  mov eax,0xbf800000              ; -1.0f in IEEE-754 
-  vmovd xmm1,eax               
+  ; Create Rotation Matrix 
 
- ; I Hat : X Axis
- vmovss xmm0,[rsp+0x34]    
- vmulss xmm0,xmm0,[rsp+0x38]        ; xmm0= cos(a)*cos(b) 
- vmovd [rsp+0x5C],xmm0              ; stk@ 0x5c=I_x 
+  ; IHat 
+  vmovd xmm0,dword[rsp+0x28]            ; xmm0=cos(a)
+  vmulss xmm0,xmm0,dword[rsp+0x24]      ; xmm0=cos(a)*cos(b)
+  vmovd xmm1,dword[rsp+0x34]            ; xmm1=sin(a)
+  vmulss xmm1,xmm1,dword[rsp+0x24]      ; xmm1=cos(b)sin(a)
+  vpxor xmm2,xmm2,xmm2                  ; xmm2=0 
+  vsubss xmm2,xmm2,[rsp+0x30]           ; xmm2= -sin(b)
 
- vmovss xmm0,[rsp+0x44]             ; xmm0= sin(a) 
- vmulss xmm0,xmm0,[rsp+0x38]        ; xmm0= sin(a)*cos(b) 
- vmovd [rsp+0x60],xmm0              ; stk@ 0x60=I_y
- vmulss xmm0,xmm1,[rsp+0x48]        ; xmm0= -sin(b) 
- vmovd [rsp+0x64],xmm0              ; stk@ 0x64=I_z
+  vinsertps xmm0,xmm0,xmm1,0x10         ; xmm0[1]=I_y 
+  vinsertps xmm0,xmm0,xmm2,0x20         ; xmm0[2]=I_z 
 
- xor eax,eax 
- mov [rsp+0x68],eax                ; I_w=0 
- vbroadcastss xmm0,[rdx]           ; xmm0=[Vx,Vx,Vx,Vx]
- vmulps xmm0,xmm1,[rsp+0x5C]       ; xmm0= Iv  
 
-; J Hat : Y-Axis 
- vmovss xmm1,[rsp+0x4C]            ; xmm1=sin(c)
- vmulss xmm1,xmm1,[rsp+0x50]       ; xmm1=cos(a)*sin(b)*sin(c)
- vmovss xmm2,[rsp+0x44]            ; xmm2=sin(a) 
- vmulss xmm2,xmm2,[rsp+0x3C]       ; xmm2=sin(a)*cos(c)
- vsubss xmm1,xmm1,xmm2              
- vmovd [rsp+0x5C],xmm1             ; stk@ 0x5C = J_x 
+; JHat
+  vmovd xmm1,dword[rsp+0x2C]                ; xmm1=sin(c)
+  vmulss xmm1,xmm1,dword[rsp+0x40]          ; xmm1; cos(a)sin(b)sin(c)
+  vmovd xmm2,dword[rsp+0x20]                ; xmm2=cos(c)
+  vmulss xmm2,xmm2,dword[rsp+0x34]          ; xmm2=sin(a)cos(b)
+  vsubss xmm1,xmm1,xmm2                     ; xmm1[0]=J_x
 
- vmovss xmm1,[rsp+0x4C]            ; xmm1=sin(c) 
- vmulss xmm1,xmm1,[rsp+0x54]       ; xmm1= sin(a)*sin(b)*sin(c) 
- vaddss xmm1,xmm1,[rsp+0x58]       ; xmm1 = xmm1- cos(a)*cos(c) 
- vmovd [rsp+0x60],xmm1             ; stk@ 0x60 = J_y 
+  vmovd xmm2,dword[rsp+0x2C]                ; xmm2=sin(c)
+  vmulss xmm2,xmm2,dword[rsp+0x40]          ; xmm2=sin(a)sin(b)sin(c)
+  vmovd xmm3,dword[rsp+0x20]                ; xmm3=cos(c)
+  vmulss xmm3,xmm3,dword[rsp+0x28]          ; xmm3=cos(a)cos(c)
+  vaddss xmm2,xmm2,xmm3                     ; xmm2=J_y 
+  vmovd xmm3,dword[rsp+0x24]                ; xmm3=cos(b)
+  vmulss xmm3,xmm3,dword[rsp+0x2C]          ; xmm3=J_z 
 
- vmovss xmm1,[rsp+0x38]          
- vmulss xmm1,xmm1,[rsp+0x4C]      ; xmm1=cos(b)*sin(c) 
- vmovd [rsp+0x64],xmm1            ; stk@ 0x64 = J_z 
+  vinsertps xmm1,xmm1,xmm2,0x10             ; xmm1[1]=J_y
+  vinsertps xmm1,xmm1,xmm3,0x20             ; xmm1[2]=J_z 
 
- vbroadcastss xmm1,[rdx+0x04]     ; xmm1=[Vy,Vy,Vy,Vy]
- vmulps xmm1,xmm1,[rsp+0x5C]      ; xmm1= Jv 
+; K Hat
 
-; K Hat : Z Axis 
- vmovss xmm2,[rsp+0x4C]            ; xmm2=  sin(c) 
- vmulss xmm2,xmm2,[rsp+0x54]       ; xmm2 = cos(a)*sin(b)*cos(c)
- vmovss xmm3,[rsp+0x4C]            ; xmm3 = sin(c)
- vmulss xmm2,xmm2,[rsp+0x44]       ; xmm2= sin(a)*sin(c)
- vaddss xmm2,xmm2,xmm3             ; 
- vmovd [rsp+0x5C],xmm2             ; stk@ 0x5C = K_x 
+  vmovd xmm2,dword[rsp+0x20]                ;xmm2=cos(c)
+  vmulss xmm2,xmm2,dword[rsp+0x40]          ;xmm2=cos(a)sin(b)cos(c)
+  vmovd xmm3,dword[rsp+0x2C]                ;xmm2=sin(c)
+  vmulss xmm3,xmm3,dword[rsp+0x34]          ;xmm3=sin(a)sin(c)
+  vaddss xmm2,xmm2,xmm3                     ;xmm2[0]=K_x 
 
- vmulss xmm2,xmm3,[rsp+0x34]       ; xmm2 = cos(a)*sin(c) 
- vmovss xmm3,[rsp+0x3C]            ; xmm3= cos(c) 
- vmulss xmm3,xmm3,[rsp+0x54]       ; xmm3= sin(a)*sin(b)*cos(c)
- vsubss xmm2,xmm3,xmm2             
- vmovd [rsp+0x60],xmm2             ; stk @0x5c= K_y
+  vmovd xmm3,dword[rsp+0x20]                
+  vmulss xmm3,xmm3,dword[rsp+0x3C]          ;xmm3=sin(a)sin(b)cos(c)
+  vmovd xmm4,dword[rsp+0x28]                ;xmm4=cos(a)
+  vmulss xmm4,xmm4,dword[rsp+0x2C]          ;xmm4=cos(a)sin(c)
+  vsubss xmm3,xmm3,xmm4                     ;xmm3[0]=K_y 
 
- vmovss xmm2,[rsp+0x3C]            ; xmm2 = cos(c) 
- vmulss xmm2,xmm2,[rsp+0x38]       ; xmm2= cos(b)*cos(c)
- vmovd [rsp+0x64],xmm2             ; stk @0x64 = K_z 
+  vmovd xmm4,dword[rsp+0x28]                ; xmm4=cos(a)
+  vmulss xmm4,xmm4,dword[rsp+0x20]              ; xmm4=cos(a)cos(c)
 
- vbroadcastss xmm2,[rdx+0x08]      ; xmm2=[Vz,Vz,Vz,Vz]
- vmulps xmm2,xmm2,[rsp+0x5C]       ; xmm2=Kv 
+  vinsertps xmm2,xmm2,xmm3,0x10            ; xmm2[1]=K_y
+  vinsertps xmm2,xmm2,xmm4,0x20            ; xmm2[2]=K_z 
+  
 
- ; Rotated Vector 
- vaddps xmm1,xmm1,xmm2 
- vaddps xmm0,xmm0,xmm1  
- vmovaps [rcx],xmm0                
+ ; Restore addresses 
+ mov rcx,[rsp+0x60]
+ mov rdx,[rsp+0x68]
+ mov r8,[rsp+0x70]
 
- ; Restore xmm 
- vmovdqa xmm5,[rsp+0x20]
- vmovdqa xmm6,[rsp+0x30]
- add rsp,0x70 
- pop rbp 
+ vmovaps xmm4,[rdx]               ; Load entire vector 
+
+ vdpps xmm0,xmm0,xmm4,0xF1        ; xmm0[0]=(I dot v)
+ vdpps xmm1,xmm1,xmm4,0xF1        ; xmm1[0]=(J dot v)
+ vdpps xmm2,xmm2,xmm4,0xF1        ; xmm2[0]=(K dot v) 
+
+ vinsertps xmm0,xmm0,xmm1,0x10   ; xmm0[1]=xmm1[0]
+ vinsertps xmm0,xmm0,xmm2,0x20   ; xmm0[2]=xmm2[0]
+ vmovaps [rcx],xmm0              ; write back result
+
+ add rsp,0x50 
+ pop rbp
  ret 
