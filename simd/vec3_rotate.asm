@@ -1,5 +1,5 @@
 ; Rotate Vector3 clockwise using Rotation matrix
-; TODO : Look for optimization opportunities
+; TODO : Look for optimization opportunities, benchmark then use registers for temporary vars
 
 
 default rel
@@ -83,7 +83,7 @@ vec3_rotate:
   
   mov rcx,rbp 
   call _sinf_cba
-  vmovdqu oword[rsp+0x2C],xmm0           ; stk [44B-55B] = sin[c,b,a]
+  vmovdqu oword[rsp+0x2C],xmm0           ; stk [44B-55B] = sin[c,b,a] - Unaligned address write 
 
   vmovd xmm0,dword[rsp+0x20]             ; xmm0= cos(c)
   vmulss xmm0,xmm0,dword[rsp+0x28]       
