@@ -39,7 +39,8 @@ I use my custom [PowerShell script](https://gist.github.com/ArcShahi/eb3bbc05681
 ```cpp
 
 // Create lib using my script and use it VS26 MSVC
-// neko ".\simd\vector.asm" ,".\simd\matrix.asm", ".\simd\vec3_rotate.asm" -OutType dll -OutName "awsm"
+// neko ".\simd\vector.asm" ,".\simd\matrix.asm", ".\simd\vec3_rotate.asm" -OutType dll -OutName "awsm" -BuildMode release
+// or just download library from : Releases tab
 
 #include <print>
 #include <awsm.hpp> // only tested function
@@ -84,7 +85,7 @@ int main()
 - Benchmarking against `glm`
 - Quaternions for transformation
 - ~~Testing~~
-- ~~Vector3 rotation (Tait-Bryan angles)~~
+
 
 
 ## Questions ?
