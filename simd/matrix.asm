@@ -31,7 +31,7 @@ mat3_add:
 ; ASSUMING : Either A or B is Transposed -> dest= A*B^(-1) or dest= A^(-1)*B 
 ; Unrolled Loop 
 
-mat3_mul_mat3:
+mat3_mul:
   
   ; Load r0,r1 of B then r2 
   vmovups ymm1,[r8]           ; ymm0[127:0]= B's r0
@@ -84,7 +84,7 @@ mat3_mul_mat3:
 ; void mul_vec3([rcx]=Vec3* dest,[rdx]=Mat3x3* M,[r8]=Vec3* v);
 ; dest = Mv
 
-mat3_mul_vec3:
+mat3_mulv:
   vmovups ymm1,[rdx]            ; load 2 rows from M : r0 , r1 
   vmovups xmm2,[rdx+0x20]       ; load last row : r2 
   vmovaps xmm3,[r8]             ; Loading entire Vec3 or Mat3x1 at once 
@@ -152,7 +152,7 @@ mat4_add:
 ; void multiply([rcx]=Mat4x4* dest,[rdx]=Mat4x4* A,[r8]=Mat4x4* B)
 ; Assuming one of the matrices are Transposed 
 
-mat4_mul_mat4:
+mat4_mul:
  
   ; Pushing ymm6 on stack 
   sub rsp,0x20
@@ -193,7 +193,7 @@ mat4_mul_mat4:
 ; void mul_vec4([rcx]=Vec4* dest,[rdx]=Mat4x4* M,[r8]=Vec4* v)
 ; the 4x1 matrix or 1x4 matrix is just Vec4 , just the representation changes
 
-mat4_mul_vec4:
+mat4_mulv:
   
   vmovups ymm1,[rdx]              ; load 2 rows : r0,r1 
   vmovups ymm2,[rdx+0x20]         ; load r2,r3 

@@ -40,7 +40,7 @@ namespace awsm {
 	// vec3 dot product
 	[[nodiscard]] float vec3_dot(awsm::vec3 v, awsm::vec3& u) noexcept;
 
-	// vec3 normalize : ||dest|| == 1
+	// vec3 normalize : ||dest||==1
 	void vec3_normalize(awsm::vec3& dest, awsm::vec3& v) noexcept;
 
 	// vec3 reflect
@@ -49,8 +49,7 @@ namespace awsm {
 	// vec3 refract : r
 	void vec3_refract(awsm::vec3& dest, awsm::vec3& incident, awsm::vec3& normal, float eta) noexcept;
 
-	// Rotate a vector : Trait-Brian angles(radian) z,y,x
-	[[deprecated("Fixed required:wrong output")]]
+	// Rotate a vector clock-wise : Trait-Brian angles(radian) x,y,z
 	void vec3_rotate(awsm::vec3& dest, awsm::vec3& v, awsm::vec3& angles) noexcept;
 
 	// vec3 subtraction
@@ -87,10 +86,10 @@ namespace awsm {
 	void mat3_add(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
 
 	// Matrix Multiplication : dest = m1 x traspose(m2)  -> One of those matrices must be transposed first
-	void mat3_mul_mat3(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
+	void mat3_mul(awsm::mat3& dest, awsm::mat3& m1, awsm::mat3& m2) noexcept;
 
 	// Mat3x3 multiplied by Vec3(Mat3x1)
-	void mat3_mul_vec3(awsm::vec3& dest, awsm::mat3& matrix, awsm::vec3& vec) noexcept;
+	void mat3_mulv(awsm::vec3& dest, awsm::mat3& matrix, awsm::vec3& vec) noexcept;
 
 	void mat3_scale(awsm::mat3& dest, float s, awsm::mat3& m) noexcept;
 
@@ -107,10 +106,10 @@ namespace awsm {
 	void mat4_add(awsm::mat4& dest, awsm::mat4& m1, awsm::mat4& m2) noexcept;
 
 	// Matrix Multiplication : dest = m1 x traspose(m2)  -> One of those matrices must be transposed first
-	void mat4_mul_mat4(awsm::mat4& dest, awsm::mat3& m1, awsm::mat4& m2) noexcept;
+	void mat4_mul(awsm::mat4& dest, awsm::mat3& m1, awsm::mat4& m2) noexcept;
 
-	// Mat4x4 multiplied by Vec3(Mat3x1)
-	void mat4_mul_vec3(awsm::vec4& dest, awsm::mat4& matrix, awsm::vec4& vec) noexcept;
+	// Mat4x4 multiplied by Vec4(Mat4x1)
+	void mat4_mulv(awsm::vec4& dest, awsm::mat4& matrix, awsm::vec4& vec) noexcept;
 
 	// Scale a matrix by factor of 's'
 	void mat4_scale(awsm::mat4& dest, float s, awsm::mat4& m) noexcept;
@@ -122,5 +121,6 @@ namespace awsm {
 
 }
 
+// AUTHOR - ArcShahi
 
 #endif
